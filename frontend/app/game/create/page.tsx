@@ -27,7 +27,7 @@ export default function Home() {
             throw new Error(`Response status: ${response.status}`);
         }
         const result = await response.json();
-        localStorage.setItem('playerId', result.playerId);
+        localStorage.setItem(`playerId-${result.game.id}`, result.playerId.toString());
         router.push(`/game/${result.game.id}`);
     }
 

@@ -118,14 +118,18 @@ namespace Api.Endpoints
                 var result = await gameService.SubmitAnswer(request.PlayerId, request.Answer);
                 if (result is null) return TypedResults.NotFound();
 
+
                 await hub.Clients.Group($"game-{id}").UpdateScores(result.Players);
-                if (result.IsGameFinished)
+                if (result.AllPlayersAnswered)
                 {
-                    await hub.Clients.Group($"game-{id}").GameFinished();
-                }
-                else
-                {
-                    await hub.Clients.Group($"game-{id}").ChangeQuestion(result.Question, result.Order, result.TotalQuestions);
+                    if (result.IsGameFinished)
+                    {
+                        await hub.Clients.Group($"game-{id}").GameFinished();
+                    }
+                    else
+                    {
+                        await hub.Clients.Group($"game-{id}").ChangeQuestion(result.Question, result.Order, result.TotalQuestions);
+                    }
                 }
                 return TypedResults.Ok(new { IsCorrect = result.IsCorrect});
             }

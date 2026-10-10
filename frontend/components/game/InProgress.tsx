@@ -22,7 +22,7 @@ export default function InProgress({ game }: InProgressProps) {
 
     useEffect(() => {
         const getPlayers = async () => {
-            const storedPlayerId = localStorage.getItem("playerId");
+            const storedPlayerId = localStorage.getItem(`playerId-${game.id}`);
             setPlayerId(storedPlayerId ? Number(storedPlayerId) : null);
             const response = await fetch(`${API_URL}/games/${game.id}/players`);
             const data = await response.json();
@@ -101,6 +101,15 @@ export default function InProgress({ game }: InProgressProps) {
     );
 
     const handleAnswer = async (answer: string) => {
+        console.log("Answer clicked:", {
+            answer,
+            playerId,
+            currentPlayer,
+            selectedAnswer,
+            gameId: game.id
+        });
+
+
         if (!currentPlayer || selectedAnswer) {
             return;
         }

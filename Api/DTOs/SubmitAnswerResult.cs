@@ -9,4 +9,5 @@ public class SubmitAnswerResult
     public int Order { get; set; } = 0;
     public int TotalQuestions { get; set; } = 0;
     public Question? Question { get; set; }
+    public bool AllPlayersAnswered { get; set; } = false;
 }

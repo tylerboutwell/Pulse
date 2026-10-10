@@ -18,7 +18,7 @@ export default function Waiting({ game }: WaitingProps) {
 
     useEffect(() => {
         const getPlayers = async () => {
-            const storedPlayerId = localStorage.getItem("playerId");
+            const storedPlayerId = localStorage.getItem(`playerId-${game.id}`);
             setPlayerId(storedPlayerId ? Number(storedPlayerId) : null);
         };
 

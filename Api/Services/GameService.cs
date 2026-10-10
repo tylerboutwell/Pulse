@@ -111,52 +111,99 @@ namespace Api.Services
             var question = await db.Questions.FindAsync(game.CurrentQuestionId);
             if (question is null) return null;
 
+            // Check if this player has already answered
+            var existingAnswer = await db.PlayerAnswers
+                .AnyAsync(a =>
+                    a.PlayerId == player.Id &&
+                    a.GameId == game.Id &&
+                    a.QuestionId == question.Id);
+
+            if (existingAnswer)
+            {
+                // Reject duplicate submission
+                return null;
+            }
+
             var isCorrect = question.CorrectOption == answer;
+
+            db.PlayerAnswers.Add(new PlayerAnswer
+            {
+                PlayerId = player.Id,
+                GameId = game.Id,
+                QuestionId = question.Id,
+                Answer = answer,
+                IsCorrect = isCorrect
+            });
+
             if (isCorrect)
             {
                 player.Score += 1;
-                await db.SaveChangesAsync();
             };
 
-            var gameQuestions = await db.GameQuestions.Where(gq => gq.GameId == game.Id).ToListAsync();
-            var gameQuestion = gameQuestions.FirstOrDefault(gq => gq.QuestionId == question.Id);
+            await db.SaveChangesAsync();
 
-            if (gameQuestion is null)
-                return null;
+            // Check if everyone has answered
+            var answeredCount = await db.PlayerAnswers
+                .CountAsync(a =>
+                    a.GameId == game.Id &&
+                    a.QuestionId == question.Id);
 
-            var totalQuestions = gameQuestions.Count;
-            var isGameFinished = gameQuestion.Order == totalQuestions;
+            var playerCount = await db.Players
+                .CountAsync(p => p.GameId == game.Id);
 
-            GameQuestion? nextGameQuestion = null;
-            if (isGameFinished)
+            var allAnswered = answeredCount == playerCount;
+
+            if (!allAnswered)
             {
-                game.Status = Status.Complete;
+                return new SubmitAnswerResult
+                {
+                    IsCorrect = isCorrect,
+                    Players = await db.Players.Where(p => p.GameId == game.Id).ToListAsync(),
+                    IsGameFinished = false,
+                    Order = 0,
+                    TotalQuestions = 0,
+                    Game = game,
+                    Question = question,
+                    AllPlayersAnswered = false
+                };
             }
             else
             {
-                nextGameQuestion = await db.GameQuestions.FirstOrDefaultAsync(gq => gq.GameId == game.Id && gq.Order == gameQuestion.Order + 1);
-                if (nextGameQuestion is not null)
+                // If all players have answered, check if the game is finished
+                var gameQuestions = await db.GameQuestions.Where(gq => gq.GameId == game.Id).ToListAsync();
+                var gameQuestion = gameQuestions.FirstOrDefault(gq => gq.QuestionId == question.Id);
+                if (gameQuestion is null)
+                    return null;
+                var totalQuestions = gameQuestions.Count;
+                var isGameFinished = gameQuestion.Order == totalQuestions;
+                GameQuestion? nextGameQuestion = null;
+                if (isGameFinished)
                 {
-                    game.CurrentQuestionId = nextGameQuestion.QuestionId;
+                    game.Status = Status.Complete;
                 }
+                else
+                {
+                    nextGameQuestion = await db.GameQuestions.FirstOrDefaultAsync(gq => gq.GameId == game.Id && gq.Order == gameQuestion.Order + 1);
+                    if (nextGameQuestion is not null)
+                    {
+                        game.CurrentQuestionId = nextGameQuestion.QuestionId;
+                    }
+                }
+                await db.SaveChangesAsync();
+                return new SubmitAnswerResult
+                {
+                    IsCorrect = isCorrect,
+                    Players = await db.Players.Where(p => p.GameId == game.Id).ToListAsync(),
+                    IsGameFinished = isGameFinished,
+                    Order = nextGameQuestion?.Order ?? gameQuestion.Order,
+                    TotalQuestions = totalQuestions,
+                    Game = game,
+                    Question = await db.Questions.FindAsync(game.CurrentQuestionId),
+                    AllPlayersAnswered = true
+                };
             }
-            await db.SaveChangesAsync();
-            return new SubmitAnswerResult
-            { 
-                IsCorrect = isCorrect,
-                Players = await db.Players.Where(p => p.GameId == game.Id).ToListAsync(),
-                IsGameFinished = isGameFinished,
-                Order = nextGameQuestion?.Order ?? gameQuestion.Order,
-                TotalQuestions = totalQuestions,
-                Game = game,
-                Question = await db.Questions.FindAsync(game.CurrentQuestionId)
-            };
+
 
         }
-
-        //public async Task<Question> NextQuestion (int gameId)
-        //{
-
-        //}
     }
 }
