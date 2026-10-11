@@ -1,13 +1,28 @@
 'use client';
-import Link from "next/link";
 import { API_URL } from "@/lib/api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Quiz } from "@/types/quiz";
 
 export default function Home() {
     const [playerName, setPlayerName] = useState("");
+    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [quizId, setQuizId] = useState<number | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const getQuizzes = async () => {
+            const response = await fetch(`${API_URL}/quizzes`);
+            if (!response.ok) {
+                console.error(`Response status: ${response.status}`);
+                return;
+            }
+            const data = await response.json();
+            setQuizzes(data);
+        };
+
+        getQuizzes();
+    }, []);
 
     const handleCreate = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -46,34 +61,20 @@ export default function Home() {
                 <form onSubmit={handleCreate}>
                     <div className="relative flex flex-col rounded-lg bg-white shadow-sm border border-slate-200">
                         <nav className="flex min-w-[240px] flex-col gap-1 p-1.5">
-                            <div
-                                onClick={() => setQuizId(1)}
-                                role="button"
-                                className={`text-slate-800 flex w-full items-center rounded-md p-3 transition-all
-                                        ${quizId === 1 ? "bg-slate-200" : "hover:bg-slate-100"}`}
-                            >
-                                Sports
-                            </div>
-                            <div
-                                onClick={() => setQuizId(2)}
-                                role="button"
-                                className={`text-slate-800 flex w-full items-center rounded-md p-3 transition-all
-                                        ${quizId === 2 ? "bg-slate-200" : "hover:bg-slate-100"}`}
-                            >
-                                Movies
-                            </div>
-                            <div
-                                onClick={() => setQuizId(3)}
-                                role="button"
-                                className={`text-slate-800 flex w-full items-center rounded-md p-3 transition-all
-                                        ${quizId === 3 ? "bg-slate-200" : "hover:bg-slate-100"}`}
-                            >
-                                Music
-                            </div>
+                            {quizzes.map((quiz) => (
+                                <div
+                                    key={quiz.id}
+                                    onClick={() => setQuizId(quiz.id)}
+                                    role="button"
+                                    className={`text-slate-800 flex w-full items-center rounded-md p-3 transition-all
+                                        ${quizId === quiz.id ? "bg-slate-200" : "hover:bg-slate-100"}`}
+                                >
+                                    {quiz.title}
+                                </div>
+                            ))}
                         </nav>
                     </div>
 
-                
                     <button type="submit" className="m-3 px-6 py-3 rounded-lg bg-black text-white hover:bg-stone-700">
                         Create Game
                     </button>
