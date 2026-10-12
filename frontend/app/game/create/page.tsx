@@ -8,6 +8,10 @@ export default function Home() {
     const [playerName, setPlayerName] = useState("");
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [quizId, setQuizId] = useState<number | null>(null);
+    const [errors, setErrors] = useState({
+        quiz: "",
+        playerName: ""
+    });
     const router = useRouter();
 
     useEffect(() => {
@@ -26,7 +30,16 @@ export default function Home() {
 
     const handleCreate = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (quizId == null || !playerName.trim()) return
+        const newErrors = {
+            quiz: quizId == null ? "Please select a quiz." : "",
+            playerName: !playerName.trim() ? "Please enter your name." : ""
+        };
+
+        setErrors(newErrors);
+
+        if (newErrors.quiz || newErrors.playerName) {
+            return;
+        }
 
         const response = await fetch(`${API_URL}/games/`, {
             method: "POST",
@@ -53,7 +66,13 @@ export default function Home() {
                     type="text"
                     placeholder="Enter your name"
                     value={playerName}
-                    onChange={(e) => setPlayerName(e.target.value)}
+                    onChange={(e) => {
+                        setPlayerName(e.target.value);
+                        setErrors(prev => ({
+                            ...prev,
+                            playerName: ""
+                        }));
+                    }}
                     className="w-full rounded-lg border border-slate-200 p-3"
                 />
                 <h1 className="text-4xl font-bold">Choose quiz</h1>
@@ -79,7 +98,25 @@ export default function Home() {
                         Create Game
                     </button>
                 </form>
-           
+                {errors.quiz && errors.playerName ? (
+                    <p role="alert" className="text-sm text-red-500">
+                        Please select a quiz and enter your name.
+                    </p>
+                ) : (
+                    <>
+                        {errors.quiz && (
+                            <p role="alert" className="text-sm text-red-500">
+                                {errors.quiz}
+                            </p>
+                        )}
+
+                        {errors.playerName && (
+                            <p role="alert" className="text-sm text-red-500">
+                                {errors.playerName}
+                            </p>
+                        )}
+                    </>
+                )}
             </div>
         </main>
     );
