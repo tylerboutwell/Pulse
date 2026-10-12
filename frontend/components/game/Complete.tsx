@@ -37,7 +37,7 @@ export default function Complete({ game }: CompleteProps) {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
             <div className="border rounded-lg p-8 w-80 shadow-sm">
-                <h1 className="text-2xl font-bold text-center">Game Complete</h1>
+                <h1 className="text-2xl font-bold text-center">Game Finished!</h1>
 
                 {/* Winner */}
                 {winner && (

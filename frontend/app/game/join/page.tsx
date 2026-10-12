@@ -6,10 +6,15 @@ import { useRouter } from "next/navigation";
 export default function Page() {
     const [gameCode, setGameCode] = useState('')
     const [playerName, setPlayerName] = useState('')
+    const [error, setError] = useState('');
+    const [isJoining, setIsJoining] = useState(false);
     const router = useRouter();
 
     const handleJoin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError('');
+        setIsJoining(true);
+
         try {
             const response = await fetch(`${API_URL}/games/join`, {
                 method: "POST",
@@ -21,15 +26,30 @@ export default function Page() {
                     playerName
                 })
             });
+
             if (!response.ok) {
-                throw new Error(`Response status: ${response.status}`);
+                if (response.status === 404) {
+                    throw new Error("Game not found. Check the game code and try again.");
+                }
+
+                throw new Error("Couldn't join the game. Please try again.");
             }
 
             const result = await response.json();
-            localStorage.setItem(`playerId-${result.gameId}`, result.id.toString());
+            localStorage.setItem(
+                `playerId-${result.gameId}`,
+                result.id.toString()
+            );
+
             router.push(`/game/${result.gameId}`);
         } catch (error) {
-            console.error(error);
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Something went wrong. Please try again."
+            );
+        } finally {
+            setIsJoining(false);
         }
     };
 
@@ -50,6 +70,11 @@ export default function Page() {
 
                     <button type='submit' className='p-2 bg-blue-500 hover:bg-blue-400 border rounded-lg'>Submit</button>
                 </form>
+                {error && (
+                    <p role="alert" className="text-red-500">
+                        {error}
+                    </p>
+                )}
             </div>
         </main>
     );
