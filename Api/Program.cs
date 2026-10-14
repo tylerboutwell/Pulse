@@ -15,6 +15,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<GameService>();
 
 var frontendUrl = builder.Configuration["frontendUrl"] ?? throw new InvalidOperationException("FrontendUrl is not configured.");
+Console.WriteLine($"Frontend URL: {frontendUrl}");
 
 builder.Services.AddCors(options =>
 {
@@ -33,10 +34,6 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 var app = builder.Build();
-app.Logger.LogInformation(
-    "Frontend URL configured: {FrontendUrl}",
-    builder.Configuration["frontendUrl"] ?? "MISSING"
-);
 app.UseDefaultFiles();
 app.UseStaticFiles();
 using (var scope = app.Services.CreateScope())
