@@ -7,8 +7,6 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Logging.AddConsole(); // Required for Log Stream
-builder.Logging.AddAzureWebAppDiagnostics(); // Required to forward to App Service logs
 builder.Services.AddDbContext<QuizLiveDb>(opt => opt.UseInMemoryDatabase("QuizLiveDb"));
 builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
@@ -53,6 +51,8 @@ QuestionEndpoints.Map(app);
 PlayerEndpoints.Map(app);
 QuizEndpoints.Map(app);
 GameEndpoints.Map(app);
+
+app.Logger.LogInformation("Frontend URL: {FrontendUrl}", frontendUrl);
 
 app.MapHub<GameHub>("/gameHub");
 app.Run();
