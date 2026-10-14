@@ -13,7 +13,6 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<GameService>();
 
 var frontendUrl = builder.Configuration["frontendUrl"] ?? throw new InvalidOperationException("FrontendUrl is not configured.");
-Console.WriteLine($"Frontend URL: {frontendUrl}");
 
 builder.Services.AddCors(options =>
 {
@@ -32,8 +31,6 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 var app = builder.Build();
-app.UseDefaultFiles();
-app.UseStaticFiles();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<QuizLiveDb>();
@@ -51,8 +48,6 @@ QuestionEndpoints.Map(app);
 PlayerEndpoints.Map(app);
 QuizEndpoints.Map(app);
 GameEndpoints.Map(app);
-
-app.Logger.LogInformation("Frontend URL: {FrontendUrl}", frontendUrl);
 
 app.MapHub<GameHub>("/gameHub");
 app.Run();

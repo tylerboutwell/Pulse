@@ -101,15 +101,6 @@ export default function InProgress({ game }: InProgressProps) {
     );
 
     const handleAnswer = async (answer: string) => {
-        console.log("Answer clicked:", {
-            answer,
-            playerId,
-            currentPlayer,
-            selectedAnswer,
-            gameId: game.id
-        });
-
-
         if (!currentPlayer || selectedAnswer) {
             return;
         }
@@ -131,10 +122,6 @@ export default function InProgress({ game }: InProgressProps) {
             console.error("Failed to submit answer");
             return;
         }
-
-        const data = await result.json();
-
-        console.log(data);
 
     }
     return (
