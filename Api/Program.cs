@@ -33,6 +33,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 var app = builder.Build();
+app.Logger.LogInformation("Frontend URL: {FrontendUrl}", frontendUrl);
 app.UseDefaultFiles();
 app.UseStaticFiles();
 using (var scope = app.Services.CreateScope())
