@@ -16,6 +16,8 @@ export default function Waiting({ game }: WaitingProps) {
     const [playerId, setPlayerId] = useState<number | null>(null)
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
+    const [copiedCode, setCopiedCode] = useState(false);
+    const [copyError, setCopyError] = useState(false);
 
     useEffect(() => {
         const getPlayers = async () => {
@@ -81,6 +83,18 @@ export default function Waiting({ game }: WaitingProps) {
         player => player.id === playerId
     );
 
+    const handleCopyCode = async () => {
+        try {
+            await navigator.clipboard.writeText(game.gameCode);
+            setCopiedCode(true);
+            setCopyError(false);
+
+            window.setTimeout(() => setCopiedCode(false), 2000);
+        } catch {
+            setCopyError(true);
+        }
+    };
+
     const handleStart = async () => {
         setError(null);
         try {
@@ -104,8 +118,23 @@ export default function Waiting({ game }: WaitingProps) {
                 Waiting for players
             </div>
 
-            <div className="text-gray-600">
-                Game Code: {game.gameCode}
+            <div className="mt-4">
+                <p className="text-xs font-medium tracking-wider text-gray-400">
+                    GAME CODE
+                </p>
+
+                <div className="mt-1 flex items-center gap-3">
+                    <span className="text-2xl font-bold text-gray-900">
+                        {game.gameCode}
+                    </span>
+
+                    <button
+                        onClick={handleCopyCode}
+                        className="text-sm font-medium text-gray-500 transition hover:text-black"
+                    >
+                        {copiedCode ? "✓ Copied" : "Copy"}
+                    </button>
+                </div>
             </div>
 
             <div className="mt-4 text-lg">
