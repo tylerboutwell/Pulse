@@ -35,15 +35,16 @@ export default function Complete({ game }: CompleteProps) {
     const winner = sortedPlayers[0];
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-            <div className="border rounded-lg p-8 w-80 shadow-sm">
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+            <div className="border rounded-xl p-6 sm:p-8 w-full max-w-sm shadow-sm">
                 <h1 className="text-2xl font-bold text-center">Game Finished!</h1>
 
                 {/* Winner */}
                 {winner && (
                     <div className="mt-6 text-center">
-                        <div className="text-sm font-medium text-gray-500">🏆 Winner</div>
-                        <div className="mt-1 text-xl font-bold">
+                        <div className="text-2xl">🏆</div>
+                        <div className="text-sm text-gray-500 mt-1">Winner</div>
+                        <div className="text-xl font-bold mt-1">
                             {winner.name}
                         </div>
                         <div className="text-sm text-gray-500">
@@ -53,22 +54,29 @@ export default function Complete({ game }: CompleteProps) {
                 )}
 
                 {/* Final Scoreboard */}
-                <div className="mt-6">
-                    <div className="font-bold mb-2">Final Scores</div>
+                <div className="mt-8">
+                    <h2 className="font-semibold mb-3">Final Scores</h2>
 
                     <div className="flex flex-col gap-2">
                         {sortedPlayers.map((player, index) => (
                             <div
                                 key={player.id}
-                                className={`flex justify-between border rounded-lg p-2 ${player.id === playerId ? "bg-gray-200" : ""
+                                className={`flex items-center justify-between border rounded-lg p-3 ${player.id === playerId ? "bg-gray-100" : ""
                                     }`}
                             >
-                                <span>
-                                    {index + 1}. {player.name}
-                                    {player.id === playerId && " (you)"}
+                                <span className="text-sm">
+                                    <span className="text-gray-500 mr-2">
+                                        {index + 1}.
+                                    </span>
+                                    {player.name}
+                                    {player.id === playerId && (
+                                        <span className="text-gray-500"> (you)</span>
+                                    )}
                                 </span>
 
-                                <span className="font-bold">{player.score}</span>
+                                <span className="font-semibold tabular-nums">
+                                    {player.score}
+                                </span>
                             </div>
                         ))}
                     </div>
