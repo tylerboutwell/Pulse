@@ -41,10 +41,13 @@ export default function Complete({ game }: CompleteProps) {
 
                 {/* Winner */}
                 {winner && (
-                    <div className="mt-4 text-center">
-                        <div className="text-sm text-gray-500">Winner</div>
-                        <div className="text-xl font-bold">
-                            {winner.name} ({winner.score} points!)
+                    <div className="mt-6 text-center">
+                        <div className="text-sm font-medium text-gray-500">🏆 Winner</div>
+                        <div className="mt-1 text-xl font-bold">
+                            {winner.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                            {winner.score} {winner.score === 1 ? "point" : "points"}
                         </div>
                     </div>
                 )}
