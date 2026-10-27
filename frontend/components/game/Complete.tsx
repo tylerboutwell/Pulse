@@ -44,7 +44,7 @@ export default function Complete({ game }: CompleteProps) {
                     <div className="mt-4 text-center">
                         <div className="text-sm text-gray-500">Winner</div>
                         <div className="text-xl font-bold">
-                            {winner.name} ({winner.score})
+                            {winner.name} ({winner.score} points!)
                         </div>
                     </div>
                 )}
