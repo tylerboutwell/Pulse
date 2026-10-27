@@ -12,6 +12,7 @@ type WaitingProps = {
 };
 export default function Waiting({ game }: WaitingProps) {
     const [players, setPlayers] = useState<Player[]>([]);
+    const [loadingPlayers, setLoadingPlayers] = useState(true);
     const [playerId, setPlayerId] = useState<number | null>(null)
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function Waiting({ game }: WaitingProps) {
             const res = await fetch(`${API_URL}/games/${game.id}/players`);
             if (!res.ok || cancelled) return;
             setPlayers(await res.json());
+            setLoadingPlayers(false);
         };
 
         const joinAndSync = async () => {
@@ -107,16 +109,37 @@ export default function Waiting({ game }: WaitingProps) {
             </div>
 
             <div className="mt-4 text-lg">
-                Players
+                Players ({players.length})
             </div>
 
-            <ul className="text-gray-700 text-center">
-                {players.map(player => (
-                    <li key={player.id}>
-                        {player.name}
-                    </li>
-                ))}
+            {loadingPlayers ? (
+                <div className="flex flex-col items-center py-6">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-black" />
+                    <p className="mt-3 text-sm text-gray-500">
+                        Loading players...
+                    </p>
+                </div>
+            ) : players.length === 0 ? (
+                <p className="py-6 text-center text-sm text-gray-500">
+                    No players yet. Share the game code!
+                </p>
+            ) : (
+                <ul className="mt-3 space-y-2 text-gray-700">
+                    {players.map(player => (
+                        <li
+                            key={player.id}
+                            className="rounded-lg border bg-gray-50 px-3 py-2 text-center"
+                        >
+                            {player.name}
+                            {player.id === playerId && (
+                                <span className="ml-2 text-xs text-gray-500">
+                                    (You)
+                                </span>
+                            )}
+                        </li>
+                    ))}
                 </ul>
+                )}
                 {currentPlayer?.isHost && (
                     <>
                         <button onClick={handleStart} className="mt-4 px-4 py-2 rounded bg-black text-white">
