@@ -17,7 +17,7 @@ export default function Waiting({ game }: WaitingProps) {
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [copiedCode, setCopiedCode] = useState(false);
-    const [copyError, setCopyError] = useState(false);
+    const [startingGame, setStartingGame] = useState(false);
 
     useEffect(() => {
         const getPlayers = async () => {
@@ -84,19 +84,14 @@ export default function Waiting({ game }: WaitingProps) {
     );
 
     const handleCopyCode = async () => {
-        try {
-            await navigator.clipboard.writeText(game.gameCode);
-            setCopiedCode(true);
-            setCopyError(false);
-
-            window.setTimeout(() => setCopiedCode(false), 2000);
-        } catch {
-            setCopyError(true);
-        }
+        await navigator.clipboard.writeText(game.gameCode);
+        setCopiedCode(true);
+        window.setTimeout(() => setCopiedCode(false), 2000);
     };
 
     const handleStart = async () => {
         setError(null);
+        setStartingGame(true);
         try {
             const response = await fetch(`${API_URL}/games/${game.id}/start`, {
                 method: "POST",
@@ -108,6 +103,8 @@ export default function Waiting({ game }: WaitingProps) {
             router.refresh();
         } catch {
             setError("Network error. Try again.");
+        } finally {
+            setStartingGame(false);
         }
     };
     return (
@@ -171,8 +168,36 @@ export default function Waiting({ game }: WaitingProps) {
                 )}
                 {currentPlayer?.isHost && (
                     <>
-                        <button onClick={handleStart} className="mt-4 px-4 py-2 rounded bg-black text-white">
-                            Start Game
+                        <button
+                            onClick={handleStart}
+                            disabled={startingGame}
+                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                            {startingGame && (
+                                <svg
+                                    className="h-4 w-4 animate-spin"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        className="opacity-25"
+                                    />
+                                    <path
+                                        d="M4 12a8 8 0 018-8"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                            )}
+
+                            {startingGame ? "Starting Game..." : "Start Game"}
                         </button>
                         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
                     </>
