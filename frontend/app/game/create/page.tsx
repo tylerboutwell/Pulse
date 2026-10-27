@@ -7,6 +7,7 @@ import { Quiz } from "@/types/quiz";
 export default function Home() {
     const [playerName, setPlayerName] = useState("");
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+    const [loadingQuizzes, setLoadingQuizzes] = useState(true);
     const [quizId, setQuizId] = useState<number | null>(null);
     const [errors, setErrors] = useState({
         quiz: "",
@@ -16,14 +17,20 @@ export default function Home() {
 
     useEffect(() => {
         const getQuizzes = async () => {
-            const response = await fetch(`${API_URL}/quizzes`);
-            if (!response.ok) {
-                console.error(`Response status: ${response.status}`);
-                return;
+            try {
+                const response = await fetch(`${API_URL}/quizzes`);
+                if (!response.ok) {
+                    console.error(`Response status: ${response.status}`);
+                    return;
+                }
+                const data = await response.json();
+                setQuizzes(data);
+            } catch (error) {
+                console.error("Failed to load quizzes:", error);
+            } finally {
+                setLoadingQuizzes(false);
             }
-            const data = await response.json();
-            setQuizzes(data);
-        };
+        }
 
         getQuizzes();
     }, []);
@@ -78,20 +85,49 @@ export default function Home() {
                 <h1 className="text-4xl font-bold">Choose quiz</h1>
 
                 <form onSubmit={handleCreate}>
-                    <div className="relative flex flex-col rounded-lg bg-white shadow-sm border border-slate-200">
-                        <nav className="flex min-w-[240px] flex-col gap-1 p-1.5">
-                            {quizzes.map((quiz) => (
-                                <div
-                                    key={quiz.id}
-                                    onClick={() => setQuizId(quiz.id)}
-                                    role="button"
-                                    className={`text-slate-800 flex w-full items-center rounded-md p-3 transition-all
-                                        ${quizId === quiz.id ? "bg-slate-200" : "hover:bg-slate-100"}`}
-                                >
-                                    {quiz.title}
+                    <div className="relative flex min-h-[180px] flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
+                        {loadingQuizzes ? (
+                            <div
+                                className="flex flex-1 flex-col items-center justify-center gap-4 p-6"
+                                role="status"
+                                aria-label="Loading quizzes"
+                            >
+                                <div className="relative flex h-12 w-12 items-center justify-center">
+                                    {/* Outer spinning ring */}
+                                    <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-slate-200 border-t-cyan-500 border-r-cyan-400" />
+
+                                    {/* Pulsing center */}
+                                    <div className="h-3 w-3 animate-pulse rounded-full bg-cyan-500 shadow-[0_0_12px_rgba(6,182,212,0.7)]" />
                                 </div>
-                            ))}
-                        </nav>
+
+                            </div>
+                        ) : quizzes.length > 0 ? (
+                            <nav className="flex min-w-[240px] flex-col gap-1 p-1.5">
+                                {quizzes.map((quiz) => (
+                                    <div
+                                        key={quiz.id}
+                                        onClick={() => setQuizId(quiz.id)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" || e.key === " ") {
+                                                e.preventDefault();
+                                                setQuizId(quiz.id);
+                                            }
+                                        }}
+                                        aria-pressed={quizId === quiz.id}
+                                        className={`flex w-full cursor-pointer items-center rounded-md p-3 text-left text-slate-800 transition-all
+                        ${quizId === quiz.id ? "bg-slate-200" : "hover:bg-slate-100"}`}
+                                    >
+                                        {quiz.title}
+                                    </div>
+                                ))}
+                            </nav>
+                        ) : (
+                            <div className="flex flex-1 items-center justify-center p-6 text-sm text-slate-500">
+                                No quizzes available.
+                            </div>
+                        )}
                     </div>
 
                     <button type="submit" className="m-3 px-6 py-3 rounded-lg bg-black text-white hover:bg-stone-700">
