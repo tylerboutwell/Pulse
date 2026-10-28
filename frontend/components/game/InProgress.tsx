@@ -172,24 +172,49 @@ export default function InProgress({ game }: InProgressProps) {
 
                 {/* Scoreboard */}
                 <div className="mt-6">
-                    <div className="font-bold mb-2">
-                        Scoreboard
+                    <div className="mb-3 flex items-center justify-between">
+                        <h2 className="font-semibold text-slate-900">Scoreboard</h2>
+                        <span className="text-xs text-slate-500">LIVE</span>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        {players
+                    <div className="flex flex-col gap-1">
+                        {[...players]
                             .sort((a, b) => b.score - a.score)
                             .map((player, index) => (
                                 <div
                                     key={player.id}
-                                    className="flex justify-between border rounded-lg p-2"
+                                    className={`flex items-center gap-3 rounded-xl px-2 py-2 transition-colors ${player.id === playerId
+                                            ? "bg-cyan-50/90"
+                                            : "hover:bg-slate-50"
+                                        }`}
                                 >
-                                    <span>
-                                        {index + 1}. {player.name}
+                                    <span className="w-5 text-center text-sm text-slate-400">
+                                        {index + 1}
                                     </span>
 
-                                    <span className="font-bold">
+                                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${player.id === playerId
+                                            ? "bg-cyan-100 text-cyan-800"
+                                            : "bg-slate-100 text-slate-600"
+                                        }`}>
+                                        {player.name.trim().charAt(0).toUpperCase() || "?"}
+                                    </div>
+
+                                    <div className="min-w-0 flex-1">
+                                        <span className="truncate text-sm font-medium text-slate-800">
+                                            {player.name}
+                                        </span>
+                                        {player.id === playerId && (
+                                            <span className="ml-1.5 text-xs text-slate-400">
+                                                You
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <span className="text-sm font-semibold tabular-nums text-slate-900">
                                         {player.score}
+                                        <span className="ml-1 text-xs font-normal text-slate-400">
+                                            pts
+                                        </span>
                                     </span>
                                 </div>
                             ))}
