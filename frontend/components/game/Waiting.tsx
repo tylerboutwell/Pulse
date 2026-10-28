@@ -111,61 +111,81 @@ export default function Waiting({ game }: WaitingProps) {
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
             <div className="border rounded-lg p-8 w-80 shadow-sm">
 
-            <div className="text-2xl font-bold">
-                Waiting for players
-            </div>
-
-            <div className="mt-4">
-                <p className="text-xs font-medium tracking-wider text-gray-400">
-                    GAME CODE
-                </p>
-
-                <div className="mt-1 flex items-center gap-3">
-                    <span className="text-2xl font-bold text-gray-900">
-                        {game.gameCode}
-                    </span>
-
-                    <button
-                        onClick={handleCopyCode}
-                        className="text-sm font-medium text-gray-500 transition hover:text-black"
-                    >
-                        {copiedCode ? "✓ Copied" : "Copy"}
-                    </button>
+                <div className="text-2xl font-bold">
+                    Waiting for players
                 </div>
-            </div>
 
-            <div className="mt-4 text-lg">
-                Players ({players.length})
-            </div>
-
-            {loadingPlayers ? (
-                <div className="flex flex-col items-center py-6">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-black" />
-                    <p className="mt-3 text-sm text-gray-500">
-                        Loading players...
+                <div className="mt-4">
+                    <p className="text-xs font-medium tracking-wider text-gray-400">
+                        GAME CODE
                     </p>
-                </div>
-            ) : players.length === 0 ? (
-                <p className="py-6 text-center text-sm text-gray-500">
-                    No players yet. Share the game code!
-                </p>
-            ) : (
-                <ul className="mt-3 space-y-2 text-gray-700">
-                    {players.map(player => (
-                        <li
-                            key={player.id}
-                            className="rounded-lg border bg-gray-50 px-3 py-2 text-center"
+
+                    <div className="mt-1 flex items-center gap-3">
+                        <span className="text-2xl font-bold text-gray-900">
+                            {game.gameCode}
+                        </span>
+
+                        <button
+                            onClick={handleCopyCode}
+                            className="text-sm font-medium text-gray-500 transition hover:text-black"
                         >
-                            {player.name}
-                            {player.id === playerId && (
-                                <span className="ml-2 text-xs text-gray-500">
-                                    (You)
-                                </span>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-                )}
+                            {copiedCode ? "✓ Copied" : "Copy"}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="mt-6">
+                    <div className="flex items-center justify-between">
+                        <h2 className="font-semibold text-slate-900">Players</h2>
+                        <span className="text-sm text-slate-500">
+                            {players.length} joined
+                        </span>
+                    </div>
+
+                    {loadingPlayers ? (
+                        <div className="flex flex-col items-center py-6">
+                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-cyan-500" />
+                            <p className="mt-3 text-sm text-slate-500">Loading players...</p>
+                        </div>
+                    ) : players.length === 0 ? (
+                        <p className="py-6 text-center text-sm text-slate-500">
+                            No players yet. Share the game code!
+                        </p>
+                    ) : (
+                        <ul className="mt-3 space-y-1">
+                            {players.map(player => (
+                                <li
+                                    key={player.id}
+                                    className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-slate-50"
+                                >
+                                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${player.id === playerId
+                                            ? "bg-cyan-100 text-cyan-800"
+                                            : "bg-slate-100 text-slate-600"
+                                        }`}>
+                                        {player.name.trim().charAt(0).toUpperCase() || "?"}
+                                    </div>
+
+                                    <div className="min-w-0 flex-1">
+                                        <span className="truncate text-sm font-medium text-slate-800">
+                                            {player.name}
+                                        </span>
+                                        {player.id === playerId && (
+                                            <span className="ml-2 text-xs text-slate-400">
+                                                You
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {player.isHost && (
+                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                                            Host
+                                        </span>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
                 {currentPlayer?.isHost && (
                     <>
                         <button
