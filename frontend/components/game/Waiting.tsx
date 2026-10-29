@@ -17,6 +17,7 @@ export default function Waiting({ game }: WaitingProps) {
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [copiedCode, setCopiedCode] = useState(false);
+    const [copiedLink, setCopiedLink] = useState(false);
     const [startingGame, setStartingGame] = useState(false);
 
     useEffect(() => {
@@ -89,6 +90,14 @@ export default function Waiting({ game }: WaitingProps) {
         window.setTimeout(() => setCopiedCode(false), 2000);
     };
 
+    const handleCopyLink = async () => {
+        const lobbyUrl = `${window.location.origin}/game/join/${game.gameCode}`;
+
+        await navigator.clipboard.writeText(lobbyUrl);
+        setCopiedLink(true);
+        window.setTimeout(() => setCopiedLink(false), 2000);
+    };
+
     const handleStart = async () => {
         setError(null);
         setStartingGame(true);
@@ -120,18 +129,16 @@ export default function Waiting({ game }: WaitingProps) {
                         GAME CODE
                     </p>
 
-                    <div className="mt-1 flex items-center gap-3">
-                        <span className="text-2xl font-bold text-gray-900">
-                            {game.gameCode}
-                        </span>
+                    <span className="mt-1 block text-2xl font-bold text-gray-900">
+                        {game.gameCode}
+                    </span>
 
-                        <button
-                            onClick={handleCopyCode}
-                            className="text-sm font-medium text-gray-500 transition hover:text-black"
-                        >
-                            {copiedCode ? "✓ Copied" : "Copy"}
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleCopyLink}
+                        className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                    >
+                        {copiedLink ? "✓ Link copied!" : "Copy invite link"}
+                    </button>
                 </div>
 
                 <div className="mt-6">
