@@ -24,7 +24,7 @@ namespace Api.Endpoints
             games.MapPost("/{id}/start", StartGame);
             games.MapPost("/join", JoinGame);
             games.MapPost("/{id}/answer", AnswerQuestion);
-            //games.MapPost("/{id}/next", NextQuestion);
+            games.MapPost("/{id}/play-again", PlayAgain);
 
 
             static async Task<Ok<List<Game>>> GetGames(QuizLiveDb db)
@@ -132,6 +132,48 @@ namespace Api.Endpoints
                     }
                 }
                 return TypedResults.Ok(new { IsCorrect = result.IsCorrect});
+            }
+
+            static async Task<IResult> PlayAgain(
+                QuizLiveDb db,
+                int id,
+                PlayAgainRequest request,
+                GameService gameService,
+                IHubContext<GameHub, IGameClient> hub)
+                        {
+                            // Validate the selected quiz
+                            var quizExists = await db.Quizzes
+                                .AnyAsync(q => q.Id == request.QuizId);
+
+                            if (!quizExists)
+                                return Results.BadRequest("Invalid quiz ID.");
+
+                            // Create the next game
+                            var result = await gameService.PlayAgain(
+                                id,
+                                request.QuizId
+                            );
+
+                            if (result is null)
+                                return Results.NotFound(
+                                    "Game not found or no host exists."
+                                );
+
+                            var (newGame, newPlayers, playerIdMap) = result.Value;
+
+                            var newHost = newPlayers
+                                .First(p => p.IsHost);
+
+                            // Notify the players in the old game that play again has been initiated
+                            await hub.Clients.Group($"game-{id}").PlayAgain(newGame.Id, playerIdMap);
+
+                            // Return the new game's details
+                            return Results.Ok(new
+                            {
+                                id = newGame.Id,
+                                gameCode = newGame.GameCode,
+                                playerId = newHost.Id
+                            });
             }
         }
     }

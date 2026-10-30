@@ -10,6 +10,7 @@ public interface IGameClient
     Task UpdateScores(List<Player> players);
     Task ChangeQuestion(Question question, int order, int totalQuestions);
     Task GameFinished();
+    Task PlayAgain(int gameId, Dictionary<int, int> playerIdMap);
 }
 
 public class GameHub : Hub<IGameClient>

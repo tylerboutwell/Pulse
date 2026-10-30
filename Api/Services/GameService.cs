@@ -203,7 +203,71 @@ namespace Api.Services
                 };
             }
 
-
         }
+
+        public async Task<(Game game, List<Player> players, Dictionary<int, int> playerIdMap)?> PlayAgain(
+            int previousGameId,
+            int quizId)
+                {
+                    // Find the completed game
+                    var previousGame = await db.Games
+                        .FindAsync(previousGameId);
+
+                    if (previousGame is null)
+                        return null;
+
+                    // Get the previous players
+                    var previousPlayers = await db.Players
+                        .Where(p => p.GameId == previousGameId)
+                        .ToListAsync();
+
+                    var previousHost = previousPlayers
+                        .FirstOrDefault(p => p.IsHost);
+
+                    if (previousHost is null)
+                        return null;
+
+                    // Create a new game and its host
+                    var (newGame, newHost) = await CreateGame(
+                        quizId,
+                        previousHost.Name
+                    );
+
+                    var newPlayers = new List<Player> { newHost };
+
+                    // Map previous player IDs to new player IDs
+                    var newPlayersByOldId = new Dictionary<int, Player>
+                    {
+                        [previousHost.Id] = newHost
+                    };
+
+                    // Copy everyone except the host, who was already created
+                    foreach (var oldPlayer in previousPlayers
+                        .Where(p => p.Id != previousHost.Id))
+                    {
+                        var player = new Player
+                        {
+                            Name = oldPlayer.Name,
+                            IsHost = oldPlayer.IsHost,
+                            GameId = newGame.Id,
+                            Score = 0
+                        };
+
+                        db.Players.Add(player);
+                        newPlayers.Add(player);
+
+                        newPlayersByOldId[oldPlayer.Id] = player;
+                    }
+
+                    await db.SaveChangesAsync();
+
+                    // Build mapping after SaveChanges populates new player IDs
+                    var playerIdMap = newPlayersByOldId.ToDictionary(
+                        pair => pair.Key,
+                        pair => pair.Value.Id
+                    );
+
+                    return (newGame, newPlayers, playerIdMap);
+                }
     }
 }
