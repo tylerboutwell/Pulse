@@ -126,8 +126,18 @@ export default function InProgress({ game }: InProgressProps) {
     }
     return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-            <div className="border rounded-lg p-8 w-80 shadow-sm">
-                Question {questionOrder} of {totalQuestions}
+            <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">
+                {/* Category and Question Counter */}
+                <div className="flex items-center justify-between mb-4">
+                    <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700">
+                        {game.quizName}
+                    </span>
+
+                    <span className="text-sm text-slate-500">
+                        Question {questionOrder} of {totalQuestions}
+                    </span>
+                </div>
+
                 {/* Question */}
                 <div className="text-2xl font-bold">
                     {question?.text}

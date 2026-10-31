@@ -13,6 +13,8 @@
 
         public int? QuizId { get; set; }
 
+        public string? QuizName { get; set; }
+
         public string? GameCode { get; set; }
 
         public Status Status { get; set; } = Status.Waiting;

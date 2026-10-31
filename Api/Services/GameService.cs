@@ -21,7 +21,8 @@ namespace Api.Services
             Game game = new Game
             {
                 GameCode = gameCode,
-                QuizId = quizId
+                QuizId = quizId,
+                QuizName = db.Quizzes.FirstOrDefault(q => q.Id == quizId)?.Title
             };
             db.Games.Add(game);
             await db.SaveChangesAsync();

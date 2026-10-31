@@ -118,10 +118,17 @@ export default function Waiting({ game }: WaitingProps) {
     };
     return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-            <div className="border rounded-lg p-8 w-80 shadow-sm">
+            <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">
 
-                <div className="text-2xl font-bold">
-                    Waiting for players
+                {/* Header */}
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-slate-900">
+                        Waiting for players
+                    </h1>
+
+                    <span className="mt-3 inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-sm font-semibold text-cyan-700">
+                        {game.quizName}
+                    </span>
                 </div>
 
                 <div className="mt-4">
