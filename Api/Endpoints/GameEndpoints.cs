@@ -128,11 +128,22 @@ namespace Api.Endpoints
                     }
                     else
                     {
-                        await hub.Clients.Group($"game-{id}").ChangeQuestion(result.Question, result.Order, result.TotalQuestions);
+                        _ = BroadcastNextQuestion(hub, id, result);
                     }
                 }
                 return TypedResults.Ok(new { IsCorrect = result.IsCorrect});
             }
+
+            static async Task BroadcastNextQuestion(
+                IHubContext<GameHub, IGameClient> hub,
+                int id,
+                SubmitAnswerResult result)
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(2));
+
+                            await hub.Clients.Group($"game-{id}")
+                                .ChangeQuestion(result.Question, result.Order, result.TotalQuestions);
+                        }
 
             static async Task<IResult> PlayAgain(
                 QuizLiveDb db,
