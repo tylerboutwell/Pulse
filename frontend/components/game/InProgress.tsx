@@ -18,6 +18,7 @@ export default function InProgress({ game }: InProgressProps) {
     const [questionOrder, setQuestionOrder] = useState<number>(0);
     const [totalQuestions, setTotalQuestions] = useState<number>(0);
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+    const [answerCorrect, setAnswerCorrect] = useState<boolean | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -44,6 +45,8 @@ export default function InProgress({ game }: InProgressProps) {
 
             const question = await response.json();
 
+            setSelectedAnswer(null);
+            setAnswerCorrect(null);
             setQuestion(question.question);
             setQuestionOrder(question.order);
             setTotalQuestions(question.totalQuestions);
@@ -61,7 +64,8 @@ export default function InProgress({ game }: InProgressProps) {
         });
 
         connection.on("ChangeQuestion", (question: Question, order: number, totalQuestions: number) => {
-            setSelectedAnswer(null)
+            setSelectedAnswer(null);
+            setAnswerCorrect(null);
             setQuestion(question);
             setQuestionOrder(order);
             setTotalQuestions(totalQuestions);
@@ -107,7 +111,7 @@ export default function InProgress({ game }: InProgressProps) {
 
         setSelectedAnswer(answer);
 
-        const result = await fetch(`${API_URL}/games/${game.id}/answer`, {
+        const response = await fetch(`${API_URL}/games/${game.id}/answer`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -118,12 +122,34 @@ export default function InProgress({ game }: InProgressProps) {
             })
         });
 
-        if (!result.ok) {
+        if (!response.ok) {
             console.error("Failed to submit answer");
             return;
         }
 
+        const result: { isCorrect: boolean } = await response.json();
+
+        setAnswerCorrect(result.isCorrect);
+
+
+
     }
+
+    const getAnswerClass = (answer: string) => {
+        const base = "w-full rounded-lg border p-3 text-left transition-colors disabled:cursor-not-allowed";
+
+        if (selectedAnswer !== answer) {
+            return `${base} border-slate-200 bg-white hover:bg-slate-50`;
+        }
+
+        if (answerCorrect === null) {
+            return `${base} border-slate-300 bg-slate-100`;
+        }
+
+        return answerCorrect
+            ? `${base} border-green-500 bg-green-50 text-green-800`
+            : `${base} border-red-500 bg-red-50 text-red-800`;
+    };
     return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
             <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">
@@ -147,32 +173,28 @@ export default function InProgress({ game }: InProgressProps) {
                 <div className="mt-4 flex flex-col gap-2">
                     <button
                         disabled={selectedAnswer !== null}
-                        className={`border rounded-lg p-3 ${selectedAnswer === "A" ? "bg-gray-200" : ""
-                            }`}
+                        className={getAnswerClass("A")}
                         onClick={() => handleAnswer("A")}
                     >
                         {question?.optionA}
                     </button>
 
                     <button disabled={selectedAnswer !== null}
-                        className={`border rounded-lg p-3 ${selectedAnswer === "B" ? "bg-gray-200" : ""
-                            }`}
+                        className={getAnswerClass("B")}
                         onClick={() => handleAnswer("B")}
                     >
                         {question?.optionB}
                     </button>
 
                     <button disabled={selectedAnswer !== null}
-                        className={`border rounded-lg p-3 ${selectedAnswer === "C" ? "bg-gray-200" : ""
-                            }`}
+                        className={getAnswerClass("C")}
                         onClick={() => handleAnswer("C")}
                     >
                         {question?.optionC}
                     </button>
 
                     <button disabled={selectedAnswer !== null}
-                        className={`border rounded-lg p-3 ${selectedAnswer === "D" ? "bg-gray-200" : ""
-                            }`}
+                        className={getAnswerClass("D")}
                         onClick={() => handleAnswer("D")}
                     >
                         {question?.optionD}
