@@ -77,6 +77,7 @@ namespace Api.Services
             // Randomize question order
             var shuffledQuestions = questions
             .OrderBy(q => Guid.NewGuid())
+            .Take(8) // Take only 8 questions
             .ToList();
 
             // Create GameQuestions
