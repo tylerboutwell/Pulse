@@ -199,6 +199,26 @@ export default function InProgress({ game }: InProgressProps) {
                     >
                         {question?.optionD}
                     </button>
+
+                    {/* Answer Feedback */}
+                    {answerCorrect !== null && (
+                        <div
+                            className={`mt-3 rounded-lg border p-3 ${answerCorrect
+                                    ? "border-green-200 bg-green-50 text-green-800"
+                                    : "border-red-200 bg-red-50 text-red-800"
+                                }`}
+                        >
+                            <p className="font-semibold">
+                                {answerCorrect ? "Correct! 🎉" : "Wrong!"}
+                            </p>
+
+                            <p className="mt-1 text-sm">
+                                {answerCorrect
+                                    ? "+1 point"
+                                    : "Better luck on the next question."}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
 
