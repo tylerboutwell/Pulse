@@ -95,6 +95,11 @@ namespace Api.Services
             //Set the first question as the current question
             game.CurrentQuestionId = shuffledQuestions[0].Id;
 
+            game.QuestionEndsAt = DateTime.UtcNow.AddSeconds(
+                GameTiming.QuestionDurationSeconds);
+
+            game.RevealEndsAt = null;
+
             // Change game status
             game.Status = Status.InProgress;
             // Save changes
@@ -102,13 +107,23 @@ namespace Api.Services
             return game;
         }
 
-        public async Task<SubmitAnswerResult?> SubmitAnswer(int playerId, string answer)
+        public async Task<(bool IsCorrect, List<Player> Players)?> SubmitAnswer(int gameId, int playerId, string answer)
         {
             var player = await db.Players.FindAsync(playerId);
             if (player is null) return null;
 
             var game = await db.Games.FindAsync(player.GameId);
             if (game is null) return null;
+
+            // Check whether the question is still accepting answers
+            if (game.Status != Status.InProgress ||
+                !game.QuestionEndsAt.HasValue ||
+                game.QuestionEndsAt.Value <= DateTime.UtcNow ||
+                game.RevealEndsAt.HasValue)
+            {
+                Console.WriteLine($"Game {game.Id} is not accepting answers at this time.");
+                return null;
+            }
 
             var question = await db.Questions.FindAsync(game.CurrentQuestionId);
             if (question is null) return null;
@@ -144,67 +159,11 @@ namespace Api.Services
 
             await db.SaveChangesAsync();
 
-            // Check if everyone has answered
-            var answeredCount = await db.PlayerAnswers
-                .CountAsync(a =>
-                    a.GameId == game.Id &&
-                    a.QuestionId == question.Id);
+            var players = await db.Players
+                .Where(p => p.GameId == game.Id)
+                .ToListAsync();
 
-            var playerCount = await db.Players
-                .CountAsync(p => p.GameId == game.Id);
-
-            var allAnswered = answeredCount == playerCount;
-
-            if (!allAnswered)
-            {
-                return new SubmitAnswerResult
-                {
-                    IsCorrect = isCorrect,
-                    Players = await db.Players.Where(p => p.GameId == game.Id).ToListAsync(),
-                    IsGameFinished = false,
-                    Order = 0,
-                    TotalQuestions = 0,
-                    Game = game,
-                    Question = question,
-                    AllPlayersAnswered = false
-                };
-            }
-            else
-            {
-                // If all players have answered, check if the game is finished
-                var gameQuestions = await db.GameQuestions.Where(gq => gq.GameId == game.Id).ToListAsync();
-                var gameQuestion = gameQuestions.FirstOrDefault(gq => gq.QuestionId == question.Id);
-                if (gameQuestion is null)
-                    return null;
-                var totalQuestions = gameQuestions.Count;
-                var isGameFinished = gameQuestion.Order == totalQuestions;
-                GameQuestion? nextGameQuestion = null;
-                if (isGameFinished)
-                {
-                    game.Status = Status.Complete;
-                }
-                else
-                {
-                    nextGameQuestion = await db.GameQuestions.FirstOrDefaultAsync(gq => gq.GameId == game.Id && gq.Order == gameQuestion.Order + 1);
-                    if (nextGameQuestion is not null)
-                    {
-                        game.CurrentQuestionId = nextGameQuestion.QuestionId;
-                    }
-                }
-                await db.SaveChangesAsync();
-                return new SubmitAnswerResult
-                {
-                    IsCorrect = isCorrect,
-                    Players = await db.Players.Where(p => p.GameId == game.Id).ToListAsync(),
-                    IsGameFinished = isGameFinished,
-                    Order = nextGameQuestion?.Order ?? gameQuestion.Order,
-                    TotalQuestions = totalQuestions,
-                    Game = game,
-                    Question = await db.Questions.FindAsync(game.CurrentQuestionId),
-                    AllPlayersAnswered = true
-                };
-            }
-
+            return (isCorrect, players);
         }
 
         public async Task<(Game game, List<Player> players, Dictionary<int, int> playerIdMap)?> PlayAgain(

@@ -8,7 +8,8 @@ public interface IGameClient
     Task PlayerJoined(Player player);
     Task GameStarted(Game game);
     Task UpdateScores(List<Player> players);
-    Task ChangeQuestion(Question question, int order, int totalQuestions);
+    Task QuestionClosed(string correctOption);
+    Task ChangeQuestion(Question question, int order, int totalQuestions, DateTime questionEndsAt);
     Task GameFinished();
     Task PlayAgain(int gameId, Dictionary<int, int> playerIdMap);
 }

@@ -16,9 +16,14 @@ export default function InProgress({ game }: InProgressProps) {
     const [playerId, setPlayerId] = useState<number | null>(null)
     const [question, setQuestion] = useState<Question | null>(null);
     const [questionOrder, setQuestionOrder] = useState<number>(0);
+    const [playerLoading, setPlayerLoading] = useState(true);
+    const [questionLoading, setQuestionLoading] = useState(true);
     const [totalQuestions, setTotalQuestions] = useState<number>(0);
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [answerCorrect, setAnswerCorrect] = useState<boolean | null>(null);
+    const [questionEndsAt, setQuestionEndsAt] = useState<string | null>(null);
+    const [now, setNow] = useState(() => Date.now());
+    const [isQuestionClosed, setIsQuestionClosed] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -28,6 +33,7 @@ export default function InProgress({ game }: InProgressProps) {
             const response = await fetch(`${API_URL}/games/${game.id}/players`);
             const data = await response.json();
             setPlayers(data);
+            setPlayerLoading(false)
         };
 
         getPlayers();
@@ -50,10 +56,31 @@ export default function InProgress({ game }: InProgressProps) {
             setQuestion(question.question);
             setQuestionOrder(question.order);
             setTotalQuestions(question.totalQuestions);
+            setQuestionEndsAt(question.questionEndsAt);
+            setIsQuestionClosed(question.isQuestionClosed ?? false);
+            setQuestionLoading(false);
         };
 
         getQuestion();
     }, [game.id, game.currentQuestionId]);
+
+    useEffect(() => {
+        if (!questionEndsAt || isQuestionClosed) return;
+
+        const kickoff = setTimeout(() => setNow(Date.now()), 0);
+        const interval = setInterval(() => setNow(Date.now()), 250);
+
+        return () => {
+            clearTimeout(kickoff);
+            clearInterval(interval);
+        };
+    }, [questionEndsAt, isQuestionClosed]);
+
+    const secondsRemaining = questionEndsAt
+        ? Math.max(0, Math.ceil((new Date(questionEndsAt).getTime() - now) / 1000))
+        : 0;
+
+    const timeIsUp = isQuestionClosed || (questionEndsAt !== null && secondsRemaining === 0);
 
     useEffect(() => {
         const connection = createConnection();
@@ -63,12 +90,14 @@ export default function InProgress({ game }: InProgressProps) {
             setPlayers(players);
         });
 
-        connection.on("ChangeQuestion", (question: Question, order: number, totalQuestions: number) => {
+        connection.on("ChangeQuestion", (question: Question, order: number, totalQuestions: number, questionEndsAt: string) => {
             setSelectedAnswer(null);
             setAnswerCorrect(null);
             setQuestion(question);
             setQuestionOrder(order);
             setTotalQuestions(totalQuestions);
+            setQuestionEndsAt(questionEndsAt);
+            setIsQuestionClosed(false);
         });
 
         connection.on("GameFinished", () => {
@@ -150,6 +179,16 @@ export default function InProgress({ game }: InProgressProps) {
             ? `${base} border-green-500 bg-green-50 text-green-800`
             : `${base} border-red-500 bg-red-50 text-red-800`;
     };
+
+    if (playerLoading || questionLoading) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-cyan-100 border-t-cyan-600" />
+                <p className="text-sm text-slate-500">Loading game...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
             <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">
@@ -167,6 +206,22 @@ export default function InProgress({ game }: InProgressProps) {
                 {/* Question */}
                 <div className="text-2xl font-bold">
                     {question?.text}
+                </div>
+
+                {/* Timer */}
+                <div className={`mt-4 flex items-center justify-center rounded-lg px-4 py-3 font-semibold ${timeIsUp || secondsRemaining <= 5
+                        ? "bg-red-50 text-red-600"
+                        : "bg-cyan-50 text-cyan-700"
+                    }`}>
+                    {!questionEndsAt ? (
+                        <span className="text-slate-400">Loading timer...</span>
+                    ) : timeIsUp ? (
+                        <span>Time is up!</span>
+                    ) : (
+                        <span className="tabular-nums">
+                            {secondsRemaining}s remaining
+                        </span>
+                    )}
                 </div>
 
                 {/* Options */}

@@ -94,7 +94,14 @@ namespace Api.Endpoints
                         gq.QuestionId == game.CurrentQuestionId);
                 var totalQuestions = await db.GameQuestions
                     .CountAsync(gq => gq.GameId == id);
-                return TypedResults.Ok(new { question, gameQuestion.Order, totalQuestions });
+
+                var isQuestionClosed =
+                    game.Status != Status.InProgress ||
+                    !game.QuestionEndsAt.HasValue ||
+                    game.QuestionEndsAt.Value <= DateTime.UtcNow ||
+                    game.RevealEndsAt.HasValue;
+
+                return TypedResults.Ok(new { question, gameQuestion.Order, totalQuestions, questionEndsAt = game.QuestionEndsAt, isQuestionClosed });
             }
 
             static async Task<Results<BadRequest, Ok<Game>>> StartGame(QuizLiveDb db, int id, GameService gameService, IHubContext<GameHub, IGameClient> hub)
@@ -115,23 +122,17 @@ namespace Api.Endpoints
 
             static async Task<IResult> AnswerQuestion(QuizLiveDb db, int id, AnswerQuestionRequest request, GameService gameService, IHubContext<GameHub, IGameClient> hub)
             {
-                var result = await gameService.SubmitAnswer(request.PlayerId, request.Answer);
+                var result = await gameService.SubmitAnswer(id, request.PlayerId, request.Answer);
                 if (result is null) return TypedResults.NotFound();
 
 
-                await hub.Clients.Group($"game-{id}").UpdateScores(result.Players);
-                if (result.AllPlayersAnswered)
+                await hub.Clients.Group($"game-{id}")
+                    .UpdateScores(result.Value.Players);
+
+                return TypedResults.Ok(new
                 {
-                    if (result.IsGameFinished)
-                    {
-                        await hub.Clients.Group($"game-{id}").GameFinished();
-                    }
-                    else
-                    {
-                        _ = BroadcastNextQuestion(hub, id, result);
-                    }
-                }
-                return TypedResults.Ok(new { IsCorrect = result.IsCorrect});
+                    IsCorrect = result.Value.IsCorrect
+                });
             }
 
             static async Task BroadcastNextQuestion(
@@ -142,7 +143,7 @@ namespace Api.Endpoints
                             await Task.Delay(TimeSpan.FromSeconds(2));
 
                             await hub.Clients.Group($"game-{id}")
-                                .ChangeQuestion(result.Question, result.Order, result.TotalQuestions);
+                                .ChangeQuestion(result.Question, result.Order, result.TotalQuestions, result.QuestionEndsAt);
                         }
 
             static async Task<IResult> PlayAgain(

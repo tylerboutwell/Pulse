@@ -10,4 +10,5 @@ public class SubmitAnswerResult
     public int TotalQuestions { get; set; } = 0;
     public Question? Question { get; set; }
     public bool AllPlayersAnswered { get; set; } = false;
+    public DateTime QuestionEndsAt { get; set; } = DateTime.UtcNow;
 }

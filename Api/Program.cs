@@ -11,6 +11,7 @@ builder.Services.AddDbContext<QuizLiveDb>(opt => opt.UseInMemoryDatabase("QuizLi
 builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<GameService>();
+builder.Services.AddHostedService<GameTimerService>();
 
 var frontendUrl = builder.Configuration["frontendUrl"] ?? throw new InvalidOperationException("FrontendUrl is not configured.");
 

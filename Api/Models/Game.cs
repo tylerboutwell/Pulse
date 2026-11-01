@@ -21,5 +21,8 @@
 
         public int? CurrentQuestionId { get; set; }
 
+        public DateTime? QuestionEndsAt { get; set; }
+
+        public DateTime? RevealEndsAt { get; set; }
     }
 }
