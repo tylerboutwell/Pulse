@@ -117,32 +117,32 @@ export default function Waiting({ game }: WaitingProps) {
         }
     };
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-            <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white dark:bg-slate-950">
+            <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
 
                 {/* Header */}
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-slate-900">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                         Waiting for players
                     </h1>
 
-                    <span className="mt-3 inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-sm font-semibold text-cyan-700">
+                    <span className="mt-3 inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-sm font-semibold text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300">
                         {game.quizName}
                     </span>
                 </div>
 
                 <div className="mt-4">
-                    <p className="text-xs font-medium tracking-wider text-gray-400">
+                    <p className="text-xs font-medium tracking-wider text-gray-400 dark:text-gray-500">
                         GAME CODE
                     </p>
 
-                    <span className="mt-1 block text-2xl font-bold text-gray-900">
+                    <span className="mt-1 block text-2xl font-bold text-gray-900 dark:text-white">
                         {game.gameCode}
                     </span>
 
                     <button
                         onClick={handleCopyLink}
-                        className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                        className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                     >
                         {copiedLink ? "✓ Link copied!" : "Copy invite link"}
                     </button>
@@ -150,19 +150,19 @@ export default function Waiting({ game }: WaitingProps) {
 
                 <div className="mt-6">
                     <div className="flex items-center justify-between">
-                        <h2 className="font-semibold text-slate-900">Players</h2>
-                        <span className="text-sm text-slate-500">
+                        <h2 className="font-semibold text-slate-900 dark:text-white">Players</h2>
+                        <span className="text-sm text-slate-500 dark:text-slate-400">
                             {players.length} joined
                         </span>
                     </div>
 
                     {loadingPlayers ? (
                         <div className="flex flex-col items-center py-6">
-                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-cyan-500" />
-                            <p className="mt-3 text-sm text-slate-500">Loading players...</p>
+                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-cyan-500 dark:border-slate-700 dark:border-t-cyan-400" />
+                            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Loading players...</p>
                         </div>
                     ) : players.length === 0 ? (
-                        <p className="py-6 text-center text-sm text-slate-500">
+                        <p className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">
                             No players yet. Share the game code!
                         </p>
                     ) : (
@@ -170,28 +170,28 @@ export default function Waiting({ game }: WaitingProps) {
                             {players.map(player => (
                                 <li
                                     key={player.id}
-                                    className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-slate-50"
+                                    className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
                                 >
                                     <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${player.id === playerId
-                                            ? "bg-cyan-100 text-cyan-800"
-                                            : "bg-slate-100 text-slate-600"
+                                            ? "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200"
+                                            : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
                                         }`}>
                                         {player.name.trim().charAt(0).toUpperCase() || "?"}
                                     </div>
 
                                     <div className="min-w-0 flex-1">
-                                        <span className="truncate text-sm font-medium text-slate-800">
+                                        <span className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
                                             {player.name}
                                         </span>
                                         {player.id === playerId && (
-                                            <span className="ml-2 text-xs text-slate-400">
+                                            <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">
                                                 You
                                             </span>
                                         )}
                                     </div>
 
                                     {player.isHost && (
-                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
                                             Host
                                         </span>
                                     )}
@@ -205,7 +205,7 @@ export default function Waiting({ game }: WaitingProps) {
                         <button
                             onClick={handleStart}
                             disabled={startingGame}
-                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-70"
+                            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
                         >
                             {startingGame && (
                                 <svg
@@ -233,7 +233,11 @@ export default function Waiting({ game }: WaitingProps) {
 
                             {startingGame ? "Starting Game..." : "Start Game"}
                         </button>
-                        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+                        {error && (
+                            <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                                {error}
+                            </p>
+                        )}
                     </>
                 )}
             </div>
