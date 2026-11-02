@@ -55,17 +55,17 @@ export default function Page() {
     };
 
     return (
-        <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-            <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h1 className="text-2xl font-bold text-slate-900">
+        <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
+            <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                     Join Game
                 </h1>
 
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                     Game code
                 </p>
 
-                <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-lg text-slate-700">
+                <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-lg text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                     {code}
                 </div>
 
@@ -78,11 +78,11 @@ export default function Page() {
                         maxLength={30}
                         required
                         disabled={isJoining}
-                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-cyan-400 dark:focus:ring-cyan-900"
                     />
 
                     {error && (
-                        <p role="alert" className="text-sm text-red-600">
+                        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
                             {error}
                         </p>
                     )}
@@ -90,7 +90,7 @@ export default function Page() {
                     <button
                         type="submit"
                         disabled={isJoining || !playerName.trim()}
-                        className="w-full rounded-lg bg-cyan-600 px-4 py-2.5 font-medium text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="w-full rounded-lg bg-cyan-600 px-4 py-2.5 font-medium text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-cyan-500 dark:hover:bg-cyan-400"
                     >
                         {isJoining ? "Joining..." : "Join Game"}
                     </button>
