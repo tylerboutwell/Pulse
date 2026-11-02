@@ -70,7 +70,7 @@ export default function Home() {
     }
 
     return (
-        <main className="min-h-screen flex items-center justify-center">
+        <main className="min-h-screen flex items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
             <div className="text-center space-y-5">
                 <input
                     type="text"
@@ -83,12 +83,14 @@ export default function Home() {
                             playerName: ""
                         }));
                     }}
-                    className="w-full rounded-lg border border-slate-200 p-3"
+                    className="w-full rounded-lg border border-slate-200 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-cyan-400 dark:focus:ring-cyan-900"
                 />
-                <h1 className="text-4xl font-bold">Choose quiz</h1>
+                <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
+                    Choose quiz
+                </h1>
 
                 <form onSubmit={handleCreate}>
-                    <div className="relative flex min-h-[180px] flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
+                    <div className="relative flex min-h-[180px] flex-col rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
                         {loadingQuizzes ? (
                             <div
                                 className="flex flex-1 flex-col items-center justify-center gap-4 p-6"
@@ -97,7 +99,7 @@ export default function Home() {
                             >
                                 <div className="relative flex h-12 w-12 items-center justify-center">
                                     {/* Outer spinning ring */}
-                                    <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-slate-200 border-t-cyan-500 border-r-cyan-400" />
+                                    <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-slate-200 border-t-cyan-500 border-r-cyan-400 dark:border-slate-700 dark:border-t-cyan-400 dark:border-r-cyan-300" />
 
                                     {/* Pulsing center */}
                                     <div className="h-3 w-3 animate-pulse rounded-full bg-cyan-500 shadow-[0_0_12px_rgba(6,182,212,0.7)]" />
@@ -119,24 +121,27 @@ export default function Home() {
                                             }
                                         }}
                                         aria-pressed={quizId === quiz.id}
-                                        className={`flex w-full cursor-pointer items-center rounded-md p-3 text-left text-slate-800 transition-all
-                        ${quizId === quiz.id ? "bg-slate-200" : "hover:bg-slate-100"}`}
+                                        className={`flex w-full cursor-pointer items-center rounded-md p-3 text-left text-slate-800 transition-all dark:text-slate-200
+                                                ${quizId === quiz.id
+                                                    ? "bg-cyan-100 text-cyan-900 dark:bg-cyan-950 dark:text-cyan-200"
+                                                    : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                                            }`}
                                     >
                                         {quiz.title}
                                     </div>
                                 ))}
                             </nav>
                         ) : (
-                            <div className="flex flex-1 items-center justify-center p-6 text-sm text-slate-500">
-                                No quizzes available.
-                            </div>
+                                <div className="flex flex-1 items-center justify-center p-6 text-sm text-slate-500 dark:text-slate-400">
+                                    No quizzes available.
+                                </div>
                         )}
                     </div>
 
                     <button
                         type="submit"
                         disabled={creatingGame}
-                        className="m-3 inline-flex items-center justify-center gap-2 rounded-lg bg-black px-6 py-3 text-white transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-70"
+                        className="m-3 inline-flex items-center justify-center gap-2 rounded-lg bg-black px-6 py-3 text-white transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
                     >
                         {creatingGame && (
                             <svg
@@ -165,19 +170,19 @@ export default function Home() {
                     </button>
                 </form>
                 {errors.quiz && errors.playerName ? (
-                    <p role="alert" className="text-sm text-red-500">
+                    <p role="alert" className="text-sm text-red-600 dark:text-red-400">
                         Please select a quiz and enter your name.
                     </p>
                 ) : (
                     <>
                         {errors.quiz && (
-                            <p role="alert" className="text-sm text-red-500">
+                                <p role="alert" className="text-sm text-red-600 dark:text-red-400">
                                 {errors.quiz}
                             </p>
                         )}
 
                         {errors.playerName && (
-                            <p role="alert" className="text-sm text-red-500">
+                                <p role="alert" className="text-sm text-red-600 dark:text-red-400">
                                 {errors.playerName}
                             </p>
                         )}
