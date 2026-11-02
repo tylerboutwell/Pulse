@@ -24,6 +24,7 @@ export default function InProgress({ game }: InProgressProps) {
     const [questionEndsAt, setQuestionEndsAt] = useState<string | null>(null);
     const [now, setNow] = useState(() => Date.now());
     const [isQuestionClosed, setIsQuestionClosed] = useState(false);
+    const [correctAnswer, setCorrectAnswer] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -59,6 +60,7 @@ export default function InProgress({ game }: InProgressProps) {
             setQuestionEndsAt(question.questionEndsAt);
             setIsQuestionClosed(question.isQuestionClosed ?? false);
             setQuestionLoading(false);
+            setCorrectAnswer(question.question.correctOption);
         };
 
         getQuestion();
@@ -98,6 +100,7 @@ export default function InProgress({ game }: InProgressProps) {
             setTotalQuestions(totalQuestions);
             setQuestionEndsAt(questionEndsAt);
             setIsQuestionClosed(false);
+            setCorrectAnswer(question.correctOption)
         });
 
         connection.on("GameFinished", () => {
@@ -160,12 +163,15 @@ export default function InProgress({ game }: InProgressProps) {
 
         setAnswerCorrect(result.isCorrect);
 
-
-
     }
 
     const getAnswerClass = (answer: string) => {
-        const base = "w-full rounded-lg border p-3 text-left transition-colors disabled:cursor-not-allowed";
+        const base = "w-full rounded-lg border p-3 text-left transition-colors disabled:cursor-default";
+
+        // Show the correct answer when time is up, regardless of selection
+        if (timeIsUp && answer == correctAnswer) {
+            return `${base} border-green-500 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950 dark:text-green-300`;
+        }
 
         if (selectedAnswer !== answer) {
             return `${base} border-slate-200 bg-white text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700`;
