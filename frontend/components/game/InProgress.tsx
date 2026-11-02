@@ -168,53 +168,53 @@ export default function InProgress({ game }: InProgressProps) {
         const base = "w-full rounded-lg border p-3 text-left transition-colors disabled:cursor-not-allowed";
 
         if (selectedAnswer !== answer) {
-            return `${base} border-slate-200 bg-white hover:bg-slate-50`;
+            return `${base} border-slate-200 bg-white text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700`;
         }
 
         if (answerCorrect === null) {
-            return `${base} border-slate-300 bg-slate-100`;
+            return `${base} border-slate-300 bg-slate-100 text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100`;
         }
 
         return answerCorrect
-            ? `${base} border-green-500 bg-green-50 text-green-800`
-            : `${base} border-red-500 bg-red-50 text-red-800`;
+            ? `${base} border-green-500 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950 dark:text-green-300`
+            : `${base} border-red-500 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-300`;
     };
 
     if (playerLoading || questionLoading) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center gap-3">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-cyan-100 border-t-cyan-600" />
-                <p className="text-sm text-slate-500">Loading game...</p>
+            <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-white dark:bg-slate-950">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-cyan-100 border-t-cyan-600 dark:border-slate-700 dark:border-t-cyan-400" />
+                <p className="text-sm text-slate-500 dark:text-slate-400">Loading game...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-            <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white dark:bg-slate-950">
+            <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 {/* Category and Question Counter */}
                 <div className="flex items-center justify-between mb-4">
-                    <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700">
+                    <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300">
                         {game.quizName}
                     </span>
 
-                    <span className="text-sm text-slate-500">
+                    <span className="text-sm text-slate-500 dark:text-slate-400">
                         Question {questionOrder} of {totalQuestions}
                     </span>
                 </div>
 
                 {/* Question */}
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-slate-900 dark:text-white">
                     {question?.text}
                 </div>
 
                 {/* Timer */}
                 <div className={`mt-4 flex items-center justify-center rounded-lg px-4 py-3 font-semibold ${timeIsUp || secondsRemaining <= 5
-                        ? "bg-red-50 text-red-600"
-                        : "bg-cyan-50 text-cyan-700"
+                        ? "bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-300"
+                        : "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300"
                     }`}>
                     {!questionEndsAt ? (
-                        <span className="text-slate-400">Loading timer...</span>
+                        <span className="text-slate-400 dark:text-slate-500">Loading timer...</span>
                     ) : timeIsUp ? (
                         <span>Time is up!</span>
                     ) : (
@@ -259,8 +259,8 @@ export default function InProgress({ game }: InProgressProps) {
                     {answerCorrect !== null && (
                         <div
                             className={`mt-3 rounded-lg border p-3 ${answerCorrect
-                                    ? "border-green-200 bg-green-50 text-green-800"
-                                    : "border-red-200 bg-red-50 text-red-800"
+                                    ? "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
+                                    : "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
                                 }`}
                         >
                             <p className="font-semibold">
@@ -280,8 +280,8 @@ export default function InProgress({ game }: InProgressProps) {
                 {/* Scoreboard */}
                 <div className="mt-6">
                     <div className="mb-3 flex items-center justify-between">
-                        <h2 className="font-semibold text-slate-900">Scoreboard</h2>
-                        <span className="text-xs text-slate-500">LIVE</span>
+                        <h2 className="font-semibold text-slate-900 dark:text-white">Scoreboard</h2>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">LIVE</span>
                     </div>
 
                     <div className="flex flex-col gap-1">
@@ -291,8 +291,8 @@ export default function InProgress({ game }: InProgressProps) {
                                 <div
                                     key={player.id}
                                     className={`flex items-center gap-3 rounded-xl px-2 py-2 transition-colors ${player.id === playerId
-                                            ? "bg-cyan-50/90"
-                                            : "hover:bg-slate-50"
+                                            ? "bg-cyan-50/90 dark:bg-cyan-950/60"
+                                            : "hover:bg-slate-50 dark:hover:bg-slate-800"
                                         }`}
                                 >
                                     <span className="w-5 text-center text-sm text-slate-400">
@@ -300,26 +300,26 @@ export default function InProgress({ game }: InProgressProps) {
                                     </span>
 
                                     <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${player.id === playerId
-                                            ? "bg-cyan-100 text-cyan-800"
-                                            : "bg-slate-100 text-slate-600"
+                                            ? "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200"
+                                            : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
                                         }`}>
                                         {player.name.trim().charAt(0).toUpperCase() || "?"}
                                     </div>
 
                                     <div className="min-w-0 flex-1">
-                                        <span className="truncate text-sm font-medium text-slate-800">
+                                        <span className="truncate text-sm font-medium text-slate-800 dark:text-slate-200">
                                             {player.name}
                                         </span>
                                         {player.id === playerId && (
-                                            <span className="ml-1.5 text-xs text-slate-400">
+                                            <span className="ml-1.5 text-xs text-slate-400 dark:text-slate-500">
                                                 You
                                             </span>
                                         )}
                                     </div>
 
-                                    <span className="text-sm font-semibold tabular-nums text-slate-900">
+                                    <span className="text-sm font-semibold tabular-nums text-slate-900 dark:text-white">
                                         {player.score}
-                                        <span className="ml-1 text-xs font-normal text-slate-400">
+                                        <span className="ml-1 text-xs font-normal text-slate-400 dark:text-slate-500">
                                             pts
                                         </span>
                                     </span>
