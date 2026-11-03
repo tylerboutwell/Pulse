@@ -129,6 +129,12 @@ namespace Api.Endpoints
                 await hub.Clients.Group($"game-{id}")
                     .UpdateScores(result.Value.Players);
 
+                if (result.Value.QuestionClosed)
+                {
+                    await hub.Clients.Group($"game-{id}")
+                        .QuestionClosed(result.Value.correctOption);
+                }
+
                 return TypedResults.Ok(new
                 {
                     IsCorrect = result.Value.IsCorrect

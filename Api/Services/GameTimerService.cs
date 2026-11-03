@@ -44,6 +44,7 @@ public class GameTimerService(
         var expiredGames = await db.Games
             .Where(g =>
                 g.Status == Status.InProgress &&
+                !g.IsQuestionClosed &&
                 g.QuestionEndsAt.HasValue &&
                 g.QuestionEndsAt.Value <= now &&
                 !g.RevealEndsAt.HasValue)
@@ -61,6 +62,7 @@ public class GameTimerService(
                 continue;
 
             // Close the question and start the reveal period
+            game.IsQuestionClosed = true;
             game.QuestionEndsAt = null;
             game.RevealEndsAt = now.AddSeconds(
                 GameTiming.RevealDurationSeconds);
@@ -149,6 +151,7 @@ public class GameTimerService(
             game.QuestionEndsAt = now.AddSeconds(
                 GameTiming.QuestionDurationSeconds);
             game.RevealEndsAt = null;
+            game.IsQuestionClosed = false;
 
             questionChanges.Add((
                 game.Id,

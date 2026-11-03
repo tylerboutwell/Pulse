@@ -5,4 +5,5 @@ export type Game = {
     gameCode: string;
     status: string;
     currentQuestionId: number | null;
+    isQuestionClosed: boolean;
 };

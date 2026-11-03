@@ -92,6 +92,11 @@ export default function InProgress({ game }: InProgressProps) {
             setPlayers(players);
         });
 
+        connection.on("QuestionClosed", (correctOption: string) => {
+            setCorrectAnswer(correctOption);
+            setIsQuestionClosed(true);
+        });
+
         connection.on("ChangeQuestion", (question: Question, order: number, totalQuestions: number, questionEndsAt: string) => {
             setSelectedAnswer(null);
             setAnswerCorrect(null);
@@ -100,7 +105,7 @@ export default function InProgress({ game }: InProgressProps) {
             setTotalQuestions(totalQuestions);
             setQuestionEndsAt(questionEndsAt);
             setIsQuestionClosed(false);
-            setCorrectAnswer(question.correctOption)
+            setCorrectAnswer(null)
         });
 
         connection.on("GameFinished", () => {
@@ -169,7 +174,7 @@ export default function InProgress({ game }: InProgressProps) {
         const base = "w-full rounded-lg border p-3 text-left transition-colors disabled:cursor-default";
 
         // Show the correct answer when time is up, regardless of selection
-        if (timeIsUp && answer == correctAnswer) {
+        if (isQuestionClosed && answer == correctAnswer) {
             return `${base} border-green-500 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950 dark:text-green-300`;
         }
 
@@ -215,13 +220,19 @@ export default function InProgress({ game }: InProgressProps) {
                 </div>
 
                 {/* Timer */}
-                <div className={`mt-4 flex items-center justify-center rounded-lg px-4 py-3 font-semibold ${timeIsUp || secondsRemaining <= 5
-                        ? "bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-300"
-                        : "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300"
+                <div className={`mt-4 flex items-center justify-center rounded-lg px-4 py-3 font-semibold ${isQuestionClosed
+                        ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
+                        : timeIsUp || secondsRemaining <= 5
+                            ? "bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-300"
+                            : "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300"
                     }`}>
-                    {!questionEndsAt ? (
-                        <span className="text-slate-400 dark:text-slate-500">Loading timer...</span>
-                    ) : timeIsUp ? (
+                    {isQuestionClosed ? (
+                        <span>Answers revealed!</span>
+                    ) : !questionEndsAt ? (
+                        <span className="text-slate-400 dark:text-slate-500">
+                            Loading timer...
+                        </span>
+                    ) : secondsRemaining === 0 ? (
                         <span>Time is up!</span>
                     ) : (
                         <span className="tabular-nums">
@@ -233,28 +244,28 @@ export default function InProgress({ game }: InProgressProps) {
                 {/* Options */}
                 <div className="mt-4 flex flex-col gap-2">
                     <button
-                        disabled={selectedAnswer !== null}
+                        disabled={selectedAnswer !== null || timeIsUp}
                         className={getAnswerClass("A")}
                         onClick={() => handleAnswer("A")}
                     >
                         {question?.optionA}
                     </button>
 
-                    <button disabled={selectedAnswer !== null}
+                    <button disabled={selectedAnswer !== null || timeIsUp }
                         className={getAnswerClass("B")}
                         onClick={() => handleAnswer("B")}
                     >
                         {question?.optionB}
                     </button>
 
-                    <button disabled={selectedAnswer !== null}
+                    <button disabled={selectedAnswer !== null || timeIsUp}
                         className={getAnswerClass("C")}
                         onClick={() => handleAnswer("C")}
                     >
                         {question?.optionC}
                     </button>
 
-                    <button disabled={selectedAnswer !== null}
+                    <button disabled={selectedAnswer !== null || timeIsUp}
                         className={getAnswerClass("D")}
                         onClick={() => handleAnswer("D")}
                     >

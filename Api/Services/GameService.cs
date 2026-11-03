@@ -99,15 +99,17 @@ namespace Api.Services
                 GameTiming.QuestionDurationSeconds);
 
             game.RevealEndsAt = null;
+            game.IsQuestionClosed = false;
 
             // Change game status
             game.Status = Status.InProgress;
+
             // Save changes
             await db.SaveChangesAsync();
             return game;
         }
 
-        public async Task<(bool IsCorrect, List<Player> Players)?> SubmitAnswer(int gameId, int playerId, string answer)
+        public async Task<(bool IsCorrect, List<Player> Players, string correctOption, bool QuestionClosed)?> SubmitAnswer(int gameId, int playerId, string answer)
         {
             var player = await db.Players.FindAsync(playerId);
             if (player is null) return null;
@@ -159,11 +161,29 @@ namespace Api.Services
 
             await db.SaveChangesAsync();
 
+            // Check whether all players have answered
+            var totalPlayers = await db.Players
+                .CountAsync(p => p.GameId == game.Id);
+
+            var totalAnswers = await db.PlayerAnswers
+                .CountAsync(a =>
+                    a.GameId == game.Id &&
+                    a.QuestionId == question.Id);
+
+            if (totalAnswers >= totalPlayers)
+            {
+                game.IsQuestionClosed = true;
+                game.QuestionEndsAt = null;
+                game.RevealEndsAt = DateTime.UtcNow.AddSeconds(
+                    GameTiming.RevealDurationSeconds);
+                await db.SaveChangesAsync();
+            }
+
             var players = await db.Players
                 .Where(p => p.GameId == game.Id)
                 .ToListAsync();
 
-            return (isCorrect, players);
+            return (isCorrect, players, question.CorrectOption, game.IsQuestionClosed);
         }
 
         public async Task<(Game game, List<Player> players, Dictionary<int, int> playerIdMap)?> PlayAgain(

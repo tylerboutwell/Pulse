@@ -24,5 +24,7 @@
         public DateTime? QuestionEndsAt { get; set; }
 
         public DateTime? RevealEndsAt { get; set; }
+
+        public bool IsQuestionClosed { get; set; } = false;
     }
 }
