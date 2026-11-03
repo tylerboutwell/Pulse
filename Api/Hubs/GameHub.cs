@@ -7,7 +7,7 @@ public interface IGameClient
 {
     Task PlayerJoined(Player player);
     Task GameStarted(Game game);
-    Task UpdateScores(List<Player> players);
+    Task UpdateScores(List<Player> players, List<PlayerAnswerDto> answers);
     Task QuestionClosed(string correctOption);
     Task ChangeQuestion(Question question, int order, int totalQuestions, DateTime questionEndsAt);
     Task GameFinished();

@@ -109,7 +109,7 @@ namespace Api.Services
             return game;
         }
 
-        public async Task<(bool IsCorrect, List<Player> Players, string correctOption, bool QuestionClosed)?> SubmitAnswer(int gameId, int playerId, string answer)
+        public async Task<(bool IsCorrect, List<Player> Players, List<PlayerAnswerDto> Answers, string correctOption, bool QuestionClosed)?> SubmitAnswer(int gameId, int playerId, string answer)
         {
             var player = await db.Players.FindAsync(playerId);
             if (player is null) return null;
@@ -183,7 +183,21 @@ namespace Api.Services
                 .Where(p => p.GameId == game.Id)
                 .ToListAsync();
 
-            return (isCorrect, players, question.CorrectOption, game.IsQuestionClosed);
+            var answers = await (
+                from ans in db.PlayerAnswers
+                join p in db.Players
+                    on ans.PlayerId equals p.Id
+                where ans.GameId == game.Id &&
+                      ans.QuestionId == question.Id
+                select new PlayerAnswerDto
+                {
+                    PlayerId = ans.PlayerId,
+                    PlayerName = p.Name,
+                    Answer = ans.Answer
+                }
+            ).ToListAsync();
+
+            return (isCorrect, players, answers, question.CorrectOption, game.IsQuestionClosed);
         }
 
         public async Task<(Game game, List<Player> players, Dictionary<int, int> playerIdMap)?> PlayAgain(

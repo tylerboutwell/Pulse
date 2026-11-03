@@ -5,6 +5,7 @@ import { API_URL } from "@/lib/api";
 import { createConnection } from "@/lib/signalr";
 import { Player } from "@/types/player";
 import { Game } from "@/types/game";
+import { PlayerAnswer } from "@/types/playerAnswer";
 import { useRouter } from "next/navigation";
 import { Question } from "../../types/question";
 
@@ -25,6 +26,7 @@ export default function InProgress({ game }: InProgressProps) {
     const [now, setNow] = useState(() => Date.now());
     const [isQuestionClosed, setIsQuestionClosed] = useState(false);
     const [correctAnswer, setCorrectAnswer] = useState<string | null>(null);
+    const [playerAnswers, setPlayerAnswers] = useState<PlayerAnswer[]>([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -88,8 +90,9 @@ export default function InProgress({ game }: InProgressProps) {
         const connection = createConnection();
         let cancelled = false;
 
-        connection.on("UpdateScores", (players: Player[]) => {
+        connection.on("UpdateScores", (players: Player[], answers: PlayerAnswer[]) => {
             setPlayers(players);
+            setPlayerAnswers(answers);
         });
 
         connection.on("QuestionClosed", (correctOption: string) => {
@@ -102,6 +105,7 @@ export default function InProgress({ game }: InProgressProps) {
             setAnswerCorrect(null);
             setQuestion(question);
             setQuestionOrder(order);
+            setPlayerAnswers([]);
             setTotalQuestions(totalQuestions);
             setQuestionEndsAt(questionEndsAt);
             setIsQuestionClosed(false);
@@ -189,6 +193,36 @@ export default function InProgress({ game }: InProgressProps) {
         return answerCorrect
             ? `${base} border-green-500 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950 dark:text-green-300`
             : `${base} border-red-500 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-300`;
+
+
+    };
+    // Render player avatars under each answer
+    const renderAnswerAvatars = (answer: string) => {
+        const answerPlayers = playerAnswers.filter(
+            a => a.answer === answer
+        );
+
+        if (answerPlayers.length === 0) return null;
+
+        return (
+            <div className="mt-1.5 flex items-center gap-2">
+                <div className="flex -space-x-2">
+                    {answerPlayers.map(player => (
+                        <div
+                            key={player.playerId}
+                            title={player.playerName}
+                            className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-200 text-xs font-semibold text-slate-700 dark:border-slate-900 dark:bg-slate-700 dark:text-slate-200"
+                        >
+                            {player.playerName.trim().charAt(0).toUpperCase() || "?"}
+                        </div>
+                    ))}
+                </div>
+
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                    {answerPlayers.length} {answerPlayers.length === 1 ? "answer" : "answers"}
+                </span>
+            </div>
+        );
     };
 
     if (playerLoading || questionLoading) {
@@ -242,35 +276,25 @@ export default function InProgress({ game }: InProgressProps) {
                 </div>
 
                 {/* Options */}
-                <div className="mt-4 flex flex-col gap-2">
-                    <button
-                        disabled={selectedAnswer !== null || timeIsUp}
-                        className={getAnswerClass("A")}
-                        onClick={() => handleAnswer("A")}
-                    >
-                        {question?.optionA}
-                    </button>
+                <div className="mt-4 flex flex-col gap-3">
+                    {[
+                        { value: "A", text: question?.optionA },
+                        { value: "B", text: question?.optionB },
+                        { value: "C", text: question?.optionC },
+                        { value: "D", text: question?.optionD },
+                    ].map(option => (
+                        <div key={option.value}>
+                            <button
+                                disabled={selectedAnswer !== null || timeIsUp || isQuestionClosed}
+                                className={getAnswerClass(option.value)}
+                                onClick={() => handleAnswer(option.value)}
+                            >
+                                {option.text}
+                            </button>
 
-                    <button disabled={selectedAnswer !== null || timeIsUp }
-                        className={getAnswerClass("B")}
-                        onClick={() => handleAnswer("B")}
-                    >
-                        {question?.optionB}
-                    </button>
-
-                    <button disabled={selectedAnswer !== null || timeIsUp}
-                        className={getAnswerClass("C")}
-                        onClick={() => handleAnswer("C")}
-                    >
-                        {question?.optionC}
-                    </button>
-
-                    <button disabled={selectedAnswer !== null || timeIsUp}
-                        className={getAnswerClass("D")}
-                        onClick={() => handleAnswer("D")}
-                    >
-                        {question?.optionD}
-                    </button>
+                            {isQuestionClosed && renderAnswerAvatars(option.value)}
+                        </div>
+                    ))}
 
                     {/* Answer Feedback */}
                     {answerCorrect !== null && (

@@ -127,7 +127,7 @@ namespace Api.Endpoints
 
 
                 await hub.Clients.Group($"game-{id}")
-                    .UpdateScores(result.Value.Players);
+                    .UpdateScores(result.Value.Players, result.Value.Answers);
 
                 if (result.Value.QuestionClosed)
                 {
