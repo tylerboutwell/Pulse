@@ -2,6 +2,7 @@ using Api.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Api.Hubs;
+using Api.DTOs;
 
 namespace Api.Services;
 
@@ -89,7 +90,7 @@ public class GameTimerService(
 
         var questionChanges = new List<(
             int GameId,
-            Question Question,
+            QuestionDTO QuestionDto,
             int Order,
             int TotalQuestions,
             DateTime Deadline)>();
@@ -155,7 +156,7 @@ public class GameTimerService(
 
             questionChanges.Add((
                 game.Id,
-                nextQuestion,
+                new QuestionDTO(nextQuestion),
                 nextGameQuestion.Order,
                 totalQuestions,
                 game.QuestionEndsAt.Value));
@@ -173,7 +174,7 @@ public class GameTimerService(
         {
             await hub.Clients.Group($"game-{change.GameId}")
                 .ChangeQuestion(
-                    change.Question,
+                    change.QuestionDto,
                     change.Order,
                     change.TotalQuestions,
                     change.Deadline);

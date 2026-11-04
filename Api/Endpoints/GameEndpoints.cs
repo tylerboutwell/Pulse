@@ -88,6 +88,8 @@ namespace Api.Endpoints
                 var game = await db.Games.FindAsync(id);
                 if (game is null) return TypedResults.NotFound();
                 var question = await db.Questions.FindAsync(game.CurrentQuestionId);
+                if (question is null) return TypedResults.NotFound();
+                var q = new QuestionDTO(question);
                 var gameQuestion = await db.GameQuestions
                     .FirstOrDefaultAsync(gq =>
                         gq.GameId == id &&
@@ -101,7 +103,7 @@ namespace Api.Endpoints
                     game.QuestionEndsAt.Value <= DateTime.UtcNow ||
                     game.RevealEndsAt.HasValue;
 
-                return TypedResults.Ok(new { question, gameQuestion.Order, totalQuestions, questionEndsAt = game.QuestionEndsAt, isQuestionClosed });
+                return TypedResults.Ok(new { question = q, gameQuestion.Order, totalQuestions, questionEndsAt = game.QuestionEndsAt, isQuestionClosed });
             }
 
             static async Task<Results<BadRequest, Ok<Game>>> StartGame(QuizLiveDb db, int id, GameService gameService, IHubContext<GameHub, IGameClient> hub)
@@ -149,7 +151,7 @@ namespace Api.Endpoints
                             await Task.Delay(TimeSpan.FromSeconds(2));
 
                             await hub.Clients.Group($"game-{id}")
-                                .ChangeQuestion(result.Question, result.Order, result.TotalQuestions, result.QuestionEndsAt);
+                                .ChangeQuestion(result.QuestionDto, result.Order, result.TotalQuestions, result.QuestionEndsAt);
                         }
 
             static async Task<IResult> PlayAgain(

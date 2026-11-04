@@ -1,3 +1,4 @@
+using Api.DTOs;
 using Api.Models;
 using Microsoft.AspNetCore.SignalR;
 
@@ -9,7 +10,7 @@ public interface IGameClient
     Task GameStarted(Game game);
     Task UpdateScores(List<Player> players, List<PlayerAnswerDto> answers);
     Task QuestionClosed(string correctOption);
-    Task ChangeQuestion(Question question, int order, int totalQuestions, DateTime questionEndsAt);
+    Task ChangeQuestion(QuestionDTO questionDto, int order, int totalQuestions, DateTime questionEndsAt);
     Task GameFinished();
     Task PlayAgain(int gameId, Dictionary<int, int> playerIdMap);
 }

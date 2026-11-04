@@ -1,3 +1,4 @@
+using Api.DTOs;
 using Api.Models;
 
 public class SubmitAnswerResult
@@ -8,7 +9,7 @@ public class SubmitAnswerResult
     public Game? Game { get; set; }
     public int Order { get; set; } = 0;
     public int TotalQuestions { get; set; } = 0;
-    public Question? Question { get; set; }
+    public QuestionDTO QuestionDto { get; set; } = new();
     public bool AllPlayersAnswered { get; set; } = false;
     public DateTime QuestionEndsAt { get; set; } = DateTime.UtcNow;
 }
