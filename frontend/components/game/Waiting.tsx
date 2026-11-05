@@ -15,8 +15,7 @@ export default function Waiting({ game }: WaitingProps) {
     const [loadingPlayers, setLoadingPlayers] = useState(true);
     const [playerId, setPlayerId] = useState<number | null>(null)
     const router = useRouter();
-    const [error, setError] = useState<string | null>(null);
-    const [copiedCode, setCopiedCode] = useState(false);
+    const [error, setError] = useState<string | null>(null);=
     const [copiedLink, setCopiedLink] = useState(false);
     const [startingGame, setStartingGame] = useState(false);
 
@@ -84,12 +83,6 @@ export default function Waiting({ game }: WaitingProps) {
         player => player.id === playerId
     );
 
-    const handleCopyCode = async () => {
-        await navigator.clipboard.writeText(game.gameCode);
-        setCopiedCode(true);
-        window.setTimeout(() => setCopiedCode(false), 2000);
-    };
-
     const handleCopyLink = async () => {
         const lobbyUrl = `${window.location.origin}/game/join/${game.gameCode}`;
 
@@ -142,7 +135,7 @@ export default function Waiting({ game }: WaitingProps) {
 
                     <button
                         onClick={handleCopyLink}
-                        className="mt-4 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                        className="mt-4c w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                     >
                         {copiedLink ? "✓ Link copied!" : "Copy invite link"}
                     </button>
