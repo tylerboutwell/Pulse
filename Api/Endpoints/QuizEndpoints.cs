@@ -13,8 +13,6 @@ namespace Api.Endpoints
             quizzes.MapGet("/", GetQuizzes);
             quizzes.MapGet("/{id}", GetQuiz);
             quizzes.MapPost("/", CreateQuiz);
-            quizzes.MapPut("/{id}", UpdateQuiz);
-            quizzes.MapDelete("/{id}", DeleteQuiz);
 
             static async Task<Ok<List<Quiz>>> GetQuizzes(QuizLiveDb db)
                 {
@@ -36,27 +34,6 @@ namespace Api.Endpoints
                 return TypedResults.Created($"/quizzes/{quiz.Id}", quiz);
             };
 
-            static async Task<Results<NotFound, NoContent>> UpdateQuiz(int id, Quiz inputQuiz, QuizLiveDb db)
-            {
-                var quiz = await db.Quizzes.FindAsync(id);
-                if (quiz is null) return TypedResults.NotFound();
-                quiz.Title = inputQuiz.Title;
-                quiz.Description = inputQuiz.Description;
-
-                await db.SaveChangesAsync();
-                return TypedResults.NoContent();
-            };
-
-            static async Task<Results<NotFound, NoContent>> DeleteQuiz(int id, QuizLiveDb db)
-            {
-                if (await db.Quizzes.FindAsync(id) is Quiz quiz)
-                {
-                    db.Quizzes.Remove(quiz);
-                    await db.SaveChangesAsync();
-                    return TypedResults.NoContent();
-                }
-                return TypedResults.NotFound();
-            };
         }
     }
 }

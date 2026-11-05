@@ -17,8 +17,6 @@ namespace Api.Endpoints
             games.MapGet("/", GetGames);
             games.MapGet("/{id}", GetGame);
             games.MapPost("/", CreateGame);
-            games.MapPut("/{id}", UpdateGame);
-            games.MapDelete("/{id}", DeleteGame);
             games.MapGet("/{id}/players", GetPlayers);
             games.MapGet("/{id}/question", GetQuestion);
             games.MapPost("/{id}/start", StartGame);
@@ -48,26 +46,6 @@ namespace Api.Endpoints
                     PlayerId = result.player.Id
                 });
             };
-
-            static async Task<Results<NotFound, NoContent>> UpdateGame(QuizLiveDb db, Game inputGame, int id)
-            {
-                var game = await db.Games.FindAsync(id);
-                if (game is null) return TypedResults.NotFound();
-                game.GameCode = inputGame.GameCode;
-                game.Status = inputGame.Status;
-
-                await db.SaveChangesAsync();
-                return TypedResults.NoContent();
-            };
-
-            static async Task<Results<NotFound, NoContent>> DeleteGame(QuizLiveDb db, int id)
-            {
-                var game = await db.Games.FindAsync(id);
-                if (game is null) return TypedResults.NotFound();
-                db.Games.Remove(game);
-                await db.SaveChangesAsync();
-                return TypedResults.NoContent();
-            }
 
             static async Task<IResult> GetPlayers(int id, QuizLiveDb db)
             {
