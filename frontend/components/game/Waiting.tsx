@@ -131,18 +131,18 @@ export default function Waiting({ game }: WaitingProps) {
                     </span>
                 </div>
 
-                <div className="mt-4">
-                    <p className="text-xs font-medium tracking-wider text-gray-400 dark:text-gray-500">
+                <div className="mt-6 text-center">
+                    <p className="text-xs font-medium tracking-widest text-gray-400 dark:text-gray-500">
                         GAME CODE
                     </p>
 
-                    <span className="mt-1 block text-2xl font-bold text-gray-900 dark:text-white">
+                    <span className="mt-2 block text-3xl font-bold tracking-[0.2em] tabular-nums text-gray-900 dark:text-white">
                         {game.gameCode}
                     </span>
 
                     <button
                         onClick={handleCopyLink}
-                        className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                        className="mt-4 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                     >
                         {copiedLink ? "✓ Link copied!" : "Copy invite link"}
                     </button>

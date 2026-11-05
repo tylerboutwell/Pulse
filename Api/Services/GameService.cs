@@ -1,6 +1,7 @@
 ﻿using Api.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace Api.Services
 {
@@ -11,7 +12,7 @@ namespace Api.Services
         {
             // generate random game code
             Random random = new Random();
-            string gameCode = random.Next(1, 999).ToString();
+            string gameCode = RandomNumberGenerator.GetInt32(100_000, 1_000_000).ToString();
 
             // While game code exists, generate new code
             while (db.Games.Any(game => game.GameCode == gameCode))
