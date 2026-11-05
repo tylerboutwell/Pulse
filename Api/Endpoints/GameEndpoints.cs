@@ -14,7 +14,6 @@ namespace Api.Endpoints
         {
             var games = app.MapGroup("/games");
 
-            games.MapGet("/", GetGames);
             games.MapGet("/{id}", GetGame);
             games.MapPost("/", CreateGame);
             games.MapGet("/{id}/players", GetPlayers);
@@ -23,12 +22,6 @@ namespace Api.Endpoints
             games.MapPost("/join", JoinGame);
             games.MapPost("/{id}/answer", AnswerQuestion);
             games.MapPost("/{id}/play-again", PlayAgain);
-
-
-            static async Task<Ok<List<Game>>> GetGames(QuizLiveDb db)
-            {
-                return TypedResults.Ok(await db.Games.ToListAsync());
-            };
 
             static async Task<Results<Ok<Game>, NotFound>> GetGame(QuizLiveDb db, int id)
             {
